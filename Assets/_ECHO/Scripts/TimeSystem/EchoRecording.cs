@@ -27,6 +27,11 @@ namespace EchoGame
             // Displacement from start avoids counting gravity jitter or idle mouse motion.
             foreach (var frame in frames)
                 if ((frame.Position - frames[0].Position).sqrMagnitude >= distance * distance) return true;
+            float scanTime = 0;
+            for (int i = 1; i < frames.Count; i++)
+                if (frames[i - 1].Scan.Enabled && !string.IsNullOrEmpty(frames[i - 1].Scan.TargetId))
+                    scanTime += frames[i].Time - frames[i - 1].Time;
+            if (scanTime >= .1f) return true;
             return false;
         }
     }

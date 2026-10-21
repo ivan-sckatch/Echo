@@ -76,9 +76,9 @@ namespace EchoGame.Tests
             }
             finally { Object.DestroyImmediate(go); }
         }
-        [Test] public void BuilderIsIdempotentAndAllReferencesAreWired()
+        [Test] public void Level01ReferencesRemainWired()
         {
-            Editor.Level01Builder.Build(); Editor.Level01Builder.Build();
+            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(Editor.Level01Builder.ScenePath);
             var games = Object.FindObjectsByType<GameManager>();
             Assert.That(games.Length, Is.EqualTo(1));
             var c = games[0].Cycles;

@@ -18,7 +18,7 @@ namespace EchoGame.UI
             foreach (var segment in segments) Destroy(segment.gameObject); segments.Clear();
             foreach (var action in actions)
             {
-                var segment = Instantiate(SegmentPrefab, Lane); segment.color = action.Moving ? color : new Color(color.r, color.g, color.b, .35f);
+                var segment = Instantiate(SegmentPrefab, Lane); segment.color = action.Scanning ? UITheme.Amber : action.Moving ? color : new Color(color.r, color.g, color.b, .35f);
                 var rect = segment.rectTransform;
                 rect.anchorMin = new Vector2(Mathf.Clamp01(action.Start / duration), .15f);
                 rect.anchorMax = new Vector2(Mathf.Clamp01(action.End / duration), .85f);

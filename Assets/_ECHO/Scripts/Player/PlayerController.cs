@@ -6,6 +6,7 @@ namespace EchoGame
     public sealed class PlayerController : MonoBehaviour
     {
         public Transform View;
+        public TemporalScanner Scanner;
         [Min(0)] public float Speed = 4.5f;
         public float MouseSensitivity = .1f;
         public float JumpHeight = 1.1f;
@@ -41,7 +42,8 @@ namespace EchoGame
             Vector3 move = transform.TransformDirection(new Vector3(input.x, 0, input.y).normalized) * Speed;
             controller.Move((move + Vector3.up * vertical) * dt);
         }
-        public EchoFrame Capture(float time) => new EchoFrame(time, Feet, transform.eulerAngles.y, pitch);
+        public EchoFrame Capture(float time)
+        { var frame = new EchoFrame(time, Feet, transform.eulerAngles.y, pitch); if (Scanner) frame.Scan = Scanner.Current; return frame; }
         public void Teleport(Transform spawn)
         {
             if (!controller) controller = GetComponent<CharacterController>();

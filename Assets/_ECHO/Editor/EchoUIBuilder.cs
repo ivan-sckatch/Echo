@@ -22,6 +22,7 @@ namespace EchoGame.Editor
         static TimelineTrackUI trackPrefab;
         static Image segmentPrefab;
         static Sprite whiteSprite;
+        public static void RefreshPrefabOnly() { Prepare(); BuildPrefab(); AssetDatabase.SaveAssets(); }
         [MenuItem("Tools/ECHO/Build UI and Main Menu")]
         public static void BuildAll()
         {
@@ -244,14 +245,34 @@ namespace EchoGame.Editor
             var notice = Group("Notification", motion.transform); Place((RectTransform)notice.transform, new Vector2(.5f, 0), new Vector2(0, 234), new Vector2(960, 94));
             var noticeBg = notice.gameObject.AddComponent<Image>(); noticeBg.color = new Color(.063f, .094f, .125f, .97f); noticeBg.raycastTarget = false;
             hud.NoticePanel = notice; hud.NoticeText = Text("Message", notice.transform, "", 28, null, TextAlignmentOptions.Center); Stretch(hud.NoticeText.rectTransform, 24, 12, 24, 12);
+            hud.Scanner = BuildScannerHUD(motion.transform);
             return hud;
+        }
+        static ScannerHUD BuildScannerHUD(Transform parent)
+        {
+            var root = Rect("Scanner HUD", parent); Stretch(root);
+            var scanner = root.gameObject.AddComponent<ScannerHUD>();
+            scanner.ScannerPanel = Group("Scan status", root);
+            Place((RectTransform)scanner.ScannerPanel.transform, new Vector2(.5f, 0), new Vector2(0, 232), new Vector2(740, 108));
+            var bg = scanner.ScannerPanel.gameObject.AddComponent<Image>(); bg.color = new Color(.063f, .094f, .125f, .97f); bg.raycastTarget = false;
+            scanner.Status = Label(scanner.ScannerPanel.transform, "СКАНИРОВАНИЕ", 25, 18, 6, 704, 36, UITheme.Cyan);
+            scanner.ProgressLabel = Label(scanner.ScannerPanel.transform, "", 23, 18, 44, 704, 36);
+            scanner.Progress = Progress(scanner.ScannerPanel.transform, "Scan progress", Vector2.zero, new Vector2(18, 12), new Vector2(704, 7), UITheme.Cyan);
+            scanner.PhasePanel = Group("Phase controller", root);
+            Place((RectTransform)scanner.PhasePanel.transform, Vector2.one, new Vector2(-40, -204), new Vector2(420, 224));
+            var panelBg = scanner.PhasePanel.gameObject.AddComponent<Image>(); panelBg.color = new Color(.063f, .094f, .125f, .97f); panelBg.raycastTarget = false;
+            Label(scanner.PhasePanel.transform, "ФАЗОВЫЙ КОНТРОЛЛЕР", 24, 20, 12, 380, 38, UITheme.Cyan);
+            scanner.NodeA = Label(scanner.PhasePanel.transform, "", 23, 20, 58, 380, 42);
+            scanner.NodeB = Label(scanner.PhasePanel.transform, "", 23, 20, 100, 380, 42);
+            scanner.Synchronization = Label(scanner.PhasePanel.transform, "", 23, 20, 148, 380, 66);
+            return scanner;
         }
         static TimelineUI BuildTimeline(Transform root)
         {
             var motion = Group("Timeline", root, true); var timeline = motion.gameObject.AddComponent<TimelineUI>(); timeline.Motion = motion;
             var panel = Panel("Tracks panel", motion.transform, Vector2.one * .5f, Vector2.zero, new Vector2(1320, 640));
             Label(panel, "ВРЕМЕННЫЕ СЛЕДЫ", 38, 32, 22, 900, 56);
-            Label(panel, "Движение — яркий сегмент  ·  Ожидание — приглушённый  ·  Tab — закрыть", 24, 32, 86, 1260, 42, UITheme.Muted);
+            Label(panel, "Движение — яркий  ·  Ожидание — приглушённый  ·  Сканер — янтарный  ·  Tab — закрыть", 23, 32, 86, 1260, 42, UITheme.Muted);
             timeline.Clock = Label(panel, "00:00", 28, 320, 142, 150, 44, UITheme.Amber);
             timeline.Duration = Label(panel, "00:30", 28, 1160, 142, 140, 44, UITheme.Muted);
             timeline.Content = Scroll(panel, "Tracks scroll", new Vector2(0, 1), new Vector2(24, -200), new Vector2(1272, 384), out _);
@@ -295,18 +316,20 @@ namespace EchoGame.Editor
         static LevelSelectUI BuildLevels(Transform root)
         {
             var motion = Group("Level select", root, true); var menu = motion.gameObject.AddComponent<LevelSelectUI>(); menu.Motion = motion;
-            var panel = MenuPanel(motion, "ВЫБОР УРОВНЯ", 460);
-            Label(panel, "Доступен один экспериментальный комплекс.", 26, 44, 116, 670, 64, UITheme.Muted);
-            menu.FirstLevel = Button(panel, "01 · Первый отголосок", 44, 218, 672, 80);
-            menu.Back = Button(panel, "Назад", 44, 338, 672); return menu;
+            var panel = MenuPanel(motion, "ВЫБОР УРОВНЯ", 580);
+            Label(panel, "Испытательные комплексы", 26, 44, 116, 670, 64, UITheme.Muted);
+            menu.FirstLevel = Button(panel, "01 · Первый отголосок", 44, 210, 672, 80);
+            menu.SecondLevel = Button(panel, "02 · Скрытый сигнал", 44, 306, 672, 80);
+            menu.Back = Button(panel, "Назад", 44, 450, 672); return menu;
         }
         static LevelCompleteUI BuildComplete(Transform root)
         {
             var motion = Group("Level complete", root, true); var menu = motion.gameObject.AddComponent<LevelCompleteUI>(); menu.Motion = motion;
-            var panel = MenuPanel(motion, "УРОВЕНЬ ПРОЙДЕН", 590);
-            menu.Summary = Label(panel, "", 29, 44, 128, 672, 172);
-            menu.Replay = Button(panel, "Пройти ещё раз", 44, 356, 672);
-            menu.MainMenu = Button(panel, "Главное меню", 44, 448, 672); return menu;
+            var panel = MenuPanel(motion, "УРОВЕНЬ ПРОЙДЕН", 630);
+            menu.Summary = Label(panel, "", 29, 44, 128, 672, 150);
+            menu.NextLevel = Button(panel, "Следующий уровень", 44, 320, 672);
+            menu.Replay = Button(panel, "Пройти ещё раз", 44, 408, 672);
+            menu.MainMenu = Button(panel, "Главное меню", 44, 496, 672); return menu;
         }
         static Slider Slider(Transform parent, float x, float y, float min, float max)
         {

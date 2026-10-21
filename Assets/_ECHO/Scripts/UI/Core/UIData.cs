@@ -12,7 +12,10 @@ namespace EchoGame.UI
         public float Start, End;
         public string Label;
         public bool Moving;
-        public ActionInterval(float start, float end, string label, bool moving) { Start = start; End = end; Label = label; Moving = moving; }
+        public bool Scanning;
+        public string TargetId;
+        public ActionInterval(float start, float end, string label, bool moving, bool scanning = false, string targetId = null)
+        { Start = start; End = end; Label = label; Moving = moving; Scanning = scanning; TargetId = targetId; }
     }
     public sealed class EchoUIData
     {
@@ -29,6 +32,14 @@ namespace EchoGame.UI
         public SessionPhase Phase;
         public IReadOnlyList<EchoUIData> Echoes = Array.Empty<EchoUIData>();
         public string Level = "01 · Первый отголосок";
+        public string NextScene;
+        public ScannerUIData Scanner;
+    }
+    public sealed class ScannerUIData
+    {
+        public bool Enabled, HasTarget, Discovered, Activated, NodeAActive, NodeBActive, DoorUnlocked;
+        public string Target, NodeAOwner, NodeBOwner;
+        public float Discovery, Activation, Overlap, RequiredOverlap;
     }
     // Views consume this contract and do not reference recorder/playback implementations.
     public interface IUIDataProvider
@@ -52,6 +63,7 @@ namespace EchoGame.UI
         void RestartCycle();
         void ReplayLevel();
         void MainMenu();
+        void NextLevel();
     }
     public static class UITheme
     {

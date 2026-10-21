@@ -7,10 +7,13 @@ namespace EchoGame.UI
     {
         public UIPanelMotion Motion;
         public TMP_Text Summary;
-        public Button Replay, MainMenu;
+        public Button Replay, MainMenu, NextLevel;
         public void Bind(UIManager ui)
-        { Replay.onClick.AddListener(() => ui.Commands?.ReplayLevel()); MainMenu.onClick.AddListener(() => ui.Commands?.MainMenu()); }
+        { Replay.onClick.AddListener(() => ui.Commands?.ReplayLevel()); MainMenu.onClick.AddListener(() => ui.Commands?.MainMenu()); if (NextLevel) NextLevel.onClick.AddListener(() => ui.Commands?.NextLevel()); }
         public void Apply(UISnapshot data)
-        { Summary.text = $"{data.Level}\n\nИспользовано Эхо: {data.EchoesUsed}     Попыток: {data.Attempts}"; }
+        {
+            Summary.text = $"{data.Level}\n\nИспользовано Эхо: {data.EchoesUsed}     Попыток: {data.Attempts}";
+            if (NextLevel) NextLevel.gameObject.SetActive(!string.IsNullOrEmpty(data.NextScene) && Application.CanStreamedLevelBeLoaded(data.NextScene));
+        }
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "Echo.Tests",
-  "references": ["Echo.Runtime", "Echo.Editor"],
+  "references": ["Echo.Runtime", "Echo.Editor", "Unity.TextMeshPro"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"]
 }

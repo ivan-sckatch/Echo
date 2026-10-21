@@ -23,6 +23,7 @@ namespace EchoGame.Editor
             try { command = File.ReadAllText(Request).Trim(); File.Delete(Request); }
             catch (IOException) { return; } // A request may still be being written by a local tool.
             if (command == "build") Level01Builder.Build();
+            else if (command == "level02") Level02Builder.Build();
             else if (command == "ui") EchoUIBuilder.BuildAll();
             else if (command == "edit") EditTests();
             else if (command == "play") PlayTests();

@@ -11,6 +11,7 @@ namespace EchoGame
         public Vector3 Feet => transform.position;
         public Transform Body;
         public float CameraPitch { get; private set; }
+        public EchoFrame CurrentFrame { get; private set; }
         public void Initialize(EchoRecording recording) { Recording = recording; Evaluate(0); }
         public void Evaluate(float time)
         {
@@ -19,8 +20,9 @@ namespace EchoGame
                 time >= Recording.Duration ? EchoPlaybackState.Completed : EchoPlaybackState.Playback;
             IsActive = State == EchoPlaybackState.Playback;
             Body.gameObject.SetActive(IsActive);
-            if (!IsActive) return;
+            if (!IsActive) { CurrentFrame = default; return; }
             var frame = Recording.Sample(time);
+            CurrentFrame = frame;
             transform.SetPositionAndRotation(frame.Position, Quaternion.Euler(0, frame.Yaw, 0));
             CameraPitch = frame.Pitch;
         }

@@ -1,62 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="7" result="Passed" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-21 15:47:59Z" end-time="2026-10-21 15:48:00Z" duration="0,8181333">
-  <test-suite type="TestSuite" id="1000" name="Echo" fullname="Echo" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-21 15:47:59Z" end-time="2026-10-21 15:48:00Z" duration="0.818133" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="15" result="Passed" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:12Z" duration="1,7174742">
+  <test-suite type="TestSuite" id="1054" name="Echo" fullname="Echo" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:12Z" duration="1.717474" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties>
       <property name="platform" value="EditMode" />
     </properties>
-    <test-suite type="Assembly" id="1010" name="Echo.Tests.dll" fullname="C:/Users/user/Echo/Library/ScriptAssemblies/Echo.Tests.dll" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-21 15:47:59Z" end-time="2026-10-21 15:48:00Z" duration="0.805797" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1074" name="Echo.Tests.dll" fullname="C:/Users/user/Echo/Library/ScriptAssemblies/Echo.Tests.dll" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:12Z" duration="1.712233" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
         <property name="_PID" value="24552" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="EditMode" />
         <property name="EditorOnly" value="True" />
       </properties>
-      <test-suite type="TestSuite" id="1011" name="EchoGame" fullname="EchoGame" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-21 15:47:59Z" end-time="2026-10-21 15:48:00Z" duration="0.804806" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="1075" name="EchoGame" fullname="EchoGame" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:12Z" duration="1.711668" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-suite type="TestSuite" id="1012" name="Tests" fullname="EchoGame.Tests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-21 15:47:59Z" end-time="2026-10-21 15:48:00Z" duration="0.804139" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="1076" name="Tests" fullname="EchoGame.Tests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:12Z" duration="1.711169" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-suite type="TestFixture" id="1002" name="RecordingTests" fullname="EchoGame.Tests.RecordingTests" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-21 15:47:59Z" end-time="2026-10-21 15:48:00Z" duration="0.802655" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestFixture" id="1056" name="RecordingTests" fullname="EchoGame.Tests.RecordingTests" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:10Z" duration="0.087834" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-case id="1009" name="BuilderIsIdempotentAndAllReferencesAreWired" fullname="EchoGame.Tests.RecordingTests.BuilderIsIdempotentAndAllReferencesAreWired" methodname="BuilderIsIdempotentAndAllReferencesAreWired" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="194613292" result="Passed" start-time="2026-10-21 15:47:59Z" end-time="2026-10-21 15:48:00Z" duration="0.763825" asserts="0">
+            <test-case id="1058" name="InterpolationClampsAndWrapsAngles" fullname="EchoGame.Tests.RecordingTests.InterpolationClampsAndWrapsAngles" methodname="InterpolationClampsAndWrapsAngles" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="686007840" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:10Z" duration="0.002093" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
-              <output><![CDATA[ECHO: Level 01 generated and saved: Assets/_ECHO/Scenes/Levels/Level_01.unity
-ECHO: Level 01 generated and saved: Assets/_ECHO/Scenes/Levels/Level_01.unity
+            </test-case>
+            <test-case id="1063" name="Level01ReferencesRemainWired" fullname="EchoGame.Tests.RecordingTests.Level01ReferencesRemainWired" methodname="Level01ReferencesRemainWired" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="1242375835" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:10Z" duration="0.078591" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1057" name="ManualRecordingCanStartMidCycleAndKeepMeaningfulHold" fullname="EchoGame.Tests.RecordingTests.ManualRecordingCanStartMidCycleAndKeepMeaningfulHold" methodname="ManualRecordingCanStartMidCycleAndKeepMeaningfulHold" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="372710325" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:10Z" duration="0.001235" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1062" name="PlateUsesFeetAndRejectsJumpingAboveIt" fullname="EchoGame.Tests.RecordingTests.PlateUsesFeetAndRejectsJumpingAboveIt" methodname="PlateUsesFeetAndRejectsJumpingAboveIt" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="836174866" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:10Z" duration="0.000386" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1061" name="PlaybackStopsInteractingAtEndAndRestarts" fullname="EchoGame.Tests.RecordingTests.PlaybackStopsInteractingAtEndAndRestarts" methodname="PlaybackStopsInteractingAtEndAndRestarts" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="787953447" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:10Z" duration="0.000509" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1060" name="RecorderResamplesAndPreservesExactEnd" fullname="EchoGame.Tests.RecordingTests.RecorderResamplesAndPreservesExactEnd" methodname="RecorderResamplesAndPreservesExactEnd" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="803552547" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:10Z" duration="0.000650" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1059" name="RecordingOwnsIndependentCopyAndRejectsIdle" fullname="EchoGame.Tests.RecordingTests.RecordingOwnsIndependentCopyAndRejectsIdle" methodname="RecordingOwnsIndependentCopyAndRejectsIdle" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="1688556032" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:10Z" duration="0.000288" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1064" name="ScannerTests" fullname="EchoGame.Tests.ScannerTests" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-10-21 18:06:10Z" end-time="2026-10-21 18:06:12Z" duration="1.622446" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1065" name="DiscoveryAndActivationAreSeparateAndLossResetsProgress" fullname="EchoGame.Tests.ScannerTests.DiscoveryAndActivationAreSeparateAndLossResetsProgress" methodname="DiscoveryAndActivationAreSeparateAndLossResetsProgress" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" seed="1446973623" result="Passed" start-time="2026-10-21 18:06:11Z" end-time="2026-10-21 18:06:11Z" duration="0.001042" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1066" name="ImpulseFiresOncePerContinuousExposureAndSourcesDoNotShareWarmup" fullname="EchoGame.Tests.ScannerTests.ImpulseFiresOncePerContinuousExposureAndSourcesDoNotShareWarmup" methodname="ImpulseFiresOncePerContinuousExposureAndSourcesDoNotShareWarmup" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" seed="325807105" result="Passed" start-time="2026-10-21 18:06:11Z" end-time="2026-10-21 18:06:11Z" duration="0.000836" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1073" name="Level02BuilderIsIdempotentAndPreservesFirstSceneBytes" fullname="EchoGame.Tests.ScannerTests.Level02BuilderIsIdempotentAndPreservesFirstSceneBytes" methodname="Level02BuilderIsIdempotentAndPreservesFirstSceneBytes" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" seed="1778476044" result="Passed" start-time="2026-10-21 18:06:11Z" end-time="2026-10-21 18:06:12Z" duration="1.429473" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[ECHO: Level 02 «Скрытый сигнал» создан и сохранён. Level_01 не изменён.
+ECHO: Level 02 «Скрытый сигнал» создан и сохранён. Level_01 не изменён.
 ]]></output>
             </test-case>
-            <test-case id="1004" name="InterpolationClampsAndWrapsAngles" fullname="EchoGame.Tests.RecordingTests.InterpolationClampsAndWrapsAngles" methodname="InterpolationClampsAndWrapsAngles" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="842070354" result="Passed" start-time="2026-10-21 15:48:00Z" end-time="2026-10-21 15:48:00Z" duration="0.003259" asserts="0">
+            <test-case id="1067" name="RaycastEnforcesRangeOcclusionAndRecordedIdentityEvenWithHiddenRenderer" fullname="EchoGame.Tests.ScannerTests.RaycastEnforcesRangeOcclusionAndRecordedIdentityEvenWithHiddenRenderer" methodname="RaycastEnforcesRangeOcclusionAndRecordedIdentityEvenWithHiddenRenderer" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" seed="1848883684" result="Passed" start-time="2026-10-21 18:06:12Z" end-time="2026-10-21 18:06:12Z" duration="0.002678" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1003" name="ManualRecordingCanStartMidCycleAndKeepMeaningfulHold" fullname="EchoGame.Tests.RecordingTests.ManualRecordingCanStartMidCycleAndKeepMeaningfulHold" methodname="ManualRecordingCanStartMidCycleAndKeepMeaningfulHold" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="33192377" result="Passed" start-time="2026-10-21 15:48:00Z" end-time="2026-10-21 15:48:00Z" duration="0.005998" asserts="0">
-              <properties>
-                <property name="retryIteration" value="0" />
-                <property name="repeatIteration" value="0" />
-              </properties>
-            </test-case>
-            <test-case id="1008" name="PlateUsesFeetAndRejectsJumpingAboveIt" fullname="EchoGame.Tests.RecordingTests.PlateUsesFeetAndRejectsJumpingAboveIt" methodname="PlateUsesFeetAndRejectsJumpingAboveIt" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="1442122176" result="Passed" start-time="2026-10-21 15:48:00Z" end-time="2026-10-21 15:48:00Z" duration="0.001567" asserts="0">
-              <properties>
-                <property name="retryIteration" value="0" />
-                <property name="repeatIteration" value="0" />
-              </properties>
-            </test-case>
-            <test-case id="1007" name="PlaybackStopsInteractingAtEndAndRestarts" fullname="EchoGame.Tests.RecordingTests.PlaybackStopsInteractingAtEndAndRestarts" methodname="PlaybackStopsInteractingAtEndAndRestarts" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="1021881826" result="Passed" start-time="2026-10-21 15:48:00Z" end-time="2026-10-21 15:48:00Z" duration="0.001943" asserts="0">
-              <properties>
-                <property name="retryIteration" value="0" />
-                <property name="repeatIteration" value="0" />
-              </properties>
-            </test-case>
-            <test-case id="1006" name="RecorderResamplesAndPreservesExactEnd" fullname="EchoGame.Tests.RecordingTests.RecorderResamplesAndPreservesExactEnd" methodname="RecorderResamplesAndPreservesExactEnd" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="1937220393" result="Passed" start-time="2026-10-21 15:48:00Z" end-time="2026-10-21 15:48:00Z" duration="0.007545" asserts="0">
-              <properties>
-                <property name="retryIteration" value="0" />
-                <property name="repeatIteration" value="0" />
-              </properties>
-            </test-case>
-            <test-case id="1005" name="RecordingOwnsIndependentCopyAndRejectsIdle" fullname="EchoGame.Tests.RecordingTests.RecordingOwnsIndependentCopyAndRejectsIdle" methodname="RecordingOwnsIndependentCopyAndRejectsIdle" classname="EchoGame.Tests.RecordingTests" runstate="Runnable" seed="945556597" result="Passed" start-time="2026-10-21 15:48:00Z" end-time="2026-10-21 15:48:00Z" duration="0.000466" asserts="0">
+            <test-suite type="ParameterizedMethod" id="1072" name="RecordingResamplesScannerAtFiftyHertzAcrossRenderRates" fullname="EchoGame.Tests.ScannerTests.RecordingResamplesScannerAtFiftyHertzAcrossRenderRates" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-21 18:06:12Z" end-time="2026-10-21 18:06:12Z" duration="0.102809" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1069" name="RecordingResamplesScannerAtFiftyHertzAcrossRenderRates(30)" fullname="EchoGame.Tests.ScannerTests.RecordingResamplesScannerAtFiftyHertzAcrossRenderRates(30)" methodname="RecordingResamplesScannerAtFiftyHertzAcrossRenderRates" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" seed="1666082185" result="Passed" start-time="2026-10-21 18:06:12Z" end-time="2026-10-21 18:06:12Z" duration="0.001081" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1070" name="RecordingResamplesScannerAtFiftyHertzAcrossRenderRates(60)" fullname="EchoGame.Tests.ScannerTests.RecordingResamplesScannerAtFiftyHertzAcrossRenderRates(60)" methodname="RecordingResamplesScannerAtFiftyHertzAcrossRenderRates" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" seed="686562652" result="Passed" start-time="2026-10-21 18:06:12Z" end-time="2026-10-21 18:06:12Z" duration="0.003514" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1071" name="RecordingResamplesScannerAtFiftyHertzAcrossRenderRates(144)" fullname="EchoGame.Tests.ScannerTests.RecordingResamplesScannerAtFiftyHertzAcrossRenderRates(144)" methodname="RecordingResamplesScannerAtFiftyHertzAcrossRenderRates" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" seed="356114358" result="Passed" start-time="2026-10-21 18:06:12Z" end-time="2026-10-21 18:06:12Z" duration="0.000489" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1068" name="ScannerFlagsAndTargetsAreStepwiseButPoseIsInterpolated" fullname="EchoGame.Tests.ScannerTests.ScannerFlagsAndTargetsAreStepwiseButPoseIsInterpolated" methodname="ScannerFlagsAndTargetsAreStepwiseButPoseIsInterpolated" classname="EchoGame.Tests.ScannerTests" runstate="Runnable" seed="1063437855" result="Passed" start-time="2026-10-21 18:06:12Z" end-time="2026-10-21 18:06:12Z" duration="0.000890" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />

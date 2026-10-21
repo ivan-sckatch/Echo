@@ -33,6 +33,7 @@ namespace EchoGame.UI
             Cycles.RecordingChanged += OnRecording;
             Cycles.Notification += PushNotice;
             Cycles.Echoes.Changed += Publish;
+            if (Cycles.PhasePuzzle) Cycles.PhasePuzzle.StateChanged += Publish;
             if (InteractionSource) { InteractionSource.TargetChanged += OnInteraction; InteractionSource.InteractionPerformed += OnInteractionPerformed; }
             subscribed = true; Publish();
         }
@@ -46,6 +47,7 @@ namespace EchoGame.UI
             Game.StateChanged -= OnState; Game.EscapeRequested -= OnEscape; Cycles.ClockChanged -= OnClock;
             Cycles.CycleRestarted -= OnRestart; Cycles.RecordingChanged -= OnRecording;
             Cycles.Notification -= PushNotice; Cycles.Echoes.Changed -= Publish;
+            if (Cycles.PhasePuzzle) Cycles.PhasePuzzle.StateChanged -= Publish;
             if (InteractionSource) { InteractionSource.TargetChanged -= OnInteraction; InteractionSource.InteractionPerformed -= OnInteractionPerformed; }
             subscribed = false;
         }
@@ -84,7 +86,10 @@ namespace EchoGame.UI
                 Recording = Cycles.IsRecording ? RecordingState.Recording : Cycles.HasFinishedRecording ? RecordingState.Completed : RecordingState.Waiting,
                 Phase = Game.State == GameState.Playing ? SessionPhase.Playing : Game.State == GameState.Paused ? SessionPhase.Paused :
                     Game.State == GameState.Timeline ? SessionPhase.Timeline : Game.State == GameState.LevelCompleted ? SessionPhase.Completed : SessionPhase.Resetting,
-                Echoes = list
+                Echoes = list, Level = Cycles.LevelName,
+                NextScene = !string.IsNullOrEmpty(Cycles.NextLevelScene) ? Cycles.NextLevelScene :
+                    SceneManager.GetActiveScene().name == "Level_01" && Application.CanStreamedLevelBeLoaded("Level_02") ? "Level_02" : null,
+                Scanner = BuildScannerData()
             };
             Changed?.Invoke(Current);
             foreach (var echo in list) if (echo.State == EchoState.SyncError && errors.Add(echo.Id))
@@ -95,17 +100,33 @@ namespace EchoGame.UI
             // Derive real movement/hold intervals from recorded world positions; no fabricated actions.
             var result = new List<ActionInterval>(); var frames = recording.Frames;
             if (frames.Count < 2) return result;
-            bool moving = false; float start = frames[0].Time;
+            bool moving = false, scanning = frames[0].Scan.Enabled; string target = frames[0].Scan.TargetId; float start = frames[0].Time;
             for (int i = 1; i < frames.Count; i++)
             {
                 float dt = frames[i].Time - frames[i - 1].Time;
                 bool current = dt > 0 && Vector3.Distance(frames[i].Position, frames[i - 1].Position) / dt > .3f;
                 if (i == 1) moving = current;
-                if (current != moving && frames[i - 1].Time - start > .08f)
-                { result.Add(new ActionInterval(start, frames[i - 1].Time, moving ? "Движение" : "Ожидание", moving)); start = frames[i - 1].Time; moving = current; }
+                bool scanningNow = frames[i - 1].Scan.Enabled;
+                string targetNow = frames[i - 1].Scan.TargetId;
+                if ((current != moving || scanning != scanningNow || target != targetNow) && frames[i - 1].Time > start)
+                { result.Add(new ActionInterval(start, frames[i - 1].Time, scanning ? "Сканирование" : moving ? "Движение" : "Ожидание", moving, scanning, target)); start = frames[i - 1].Time; moving = current; scanning = scanningNow; target = targetNow; }
             }
-            result.Add(new ActionInterval(start, recording.Duration, moving ? "Движение" : "Ожидание", moving));
+            result.Add(new ActionInterval(start, recording.Duration, scanning ? "Сканирование" : moving ? "Движение" : "Ожидание", moving, scanning, target));
             return result;
+        }
+        ScannerUIData BuildScannerData()
+        {
+            if (!Cycles.Scanning || !Cycles.PhasePuzzle) return null;
+            var world = Cycles.Scanning; var target = world.PlayerTarget; var puzzle = Cycles.PhasePuzzle;
+            return new ScannerUIData {
+                Enabled = Game.State == GameState.Playing && world.PlayerScanner.Current.Enabled,
+                HasTarget = target, Target = target ? target.DisplayName : "", Discovered = target && target.IsDiscovered,
+                Activated = target && (target.IsSignaling || target.Mode == PhaseNodeMode.Impulse && target.HasActivated),
+                Discovery = target ? target.DiscoveryProgress(0) : 0, Activation = target ? target.ActivationProgress(0) : 0,
+                NodeAActive = puzzle.NodeA.IsSignaling, NodeBActive = puzzle.NodeB.IsSignaling,
+                NodeAOwner = puzzle.NodeA.SignalOwner, NodeBOwner = puzzle.NodeB.SignalOwner,
+                Overlap = puzzle.Overlap, RequiredOverlap = puzzle.RequiredOverlap, DoorUnlocked = puzzle.FinalDoorUnlocked
+            };
         }
         public void Resume() => Game.Resume();
         public void Pause() => Game.TogglePause();
@@ -113,5 +134,7 @@ namespace EchoGame.UI
         public void RestartCycle() => Cycles.Restart(false);
         public void ReplayLevel() => Cycles.Restart(true);
         public void MainMenu() { Game.EndSession(); SceneManager.LoadScene("MainMenu"); }
+        public void NextLevel()
+        { if (Game.State == GameState.LevelCompleted && !string.IsNullOrEmpty(Current.NextScene) && Application.CanStreamedLevelBeLoaded(Current.NextScene)) { Game.EndSession(); SceneManager.LoadScene(Current.NextScene); } }
     }
 }

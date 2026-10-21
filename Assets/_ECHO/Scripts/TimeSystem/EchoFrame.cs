@@ -7,13 +7,15 @@ namespace EchoGame
         public float Time;
         public Vector3 Position;
         public float Yaw, Pitch;
+        public ScanFrame Scan;
         public EchoFrame(float time, Vector3 position, float yaw, float pitch)
-        { Time = time; Position = position; Yaw = yaw; Pitch = pitch; }
+        { Time = time; Position = position; Yaw = yaw; Pitch = pitch; Scan = default; }
         public static EchoFrame Lerp(EchoFrame a, EchoFrame b, float time)
         {
             float t = b.Time > a.Time ? Mathf.InverseLerp(a.Time, b.Time, time) : 0;
-            return new EchoFrame(time, Vector3.Lerp(a.Position, b.Position, t),
+            var result = new EchoFrame(time, Vector3.Lerp(a.Position, b.Position, t),
                 Mathf.LerpAngle(a.Yaw, b.Yaw, t), Mathf.LerpAngle(a.Pitch, b.Pitch, t));
+            result.Scan = ScanFrame.Interpolate(a.Scan, b.Scan, t); return result;
         }
     }
 }

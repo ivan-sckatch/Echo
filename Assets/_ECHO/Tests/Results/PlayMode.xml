@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="10" result="Passed" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-21 15:48:28Z" end-time="2026-10-21 15:48:37Z" duration="9,0390169">
-  <test-suite type="TestSuite" id="1040" name="Echo" fullname="Echo" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-21 15:48:28Z" end-time="2026-10-21 15:48:37Z" duration="9.039017" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="17" result="Passed" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-21 18:05:16Z" end-time="2026-10-21 18:05:39Z" duration="23,0503643">
+  <test-suite type="TestSuite" id="1027" name="Echo" fullname="Echo" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-10-21 18:05:16Z" end-time="2026-10-21 18:05:39Z" duration="23.050364" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties>
       <property name="platform" value="PlayMode" />
     </properties>
-    <test-suite type="Assembly" id="1053" name="Echo.PlayTests.dll" fullname="C:/Users/user/Echo/Library/ScriptAssemblies/Echo.PlayTests.dll" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-21 15:48:28Z" end-time="2026-10-21 15:48:37Z" duration="9.034857" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1048" name="Echo.PlayTests.dll" fullname="C:/Users/user/Echo/Library/ScriptAssemblies/Echo.PlayTests.dll" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-10-21 18:05:16Z" end-time="2026-10-21 18:05:39Z" duration="23.038575" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
         <property name="_PID" value="24552" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="PlayMode" />
         <property name="EditorOnly" value="False" />
       </properties>
-      <test-suite type="TestSuite" id="1054" name="EchoGame" fullname="EchoGame" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-21 15:48:28Z" end-time="2026-10-21 15:48:37Z" duration="9.031766" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="1049" name="EchoGame" fullname="EchoGame" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-10-21 18:05:16Z" end-time="2026-10-21 18:05:39Z" duration="23.034804" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-suite type="TestSuite" id="1055" name="Tests" fullname="EchoGame.Tests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-21 15:48:28Z" end-time="2026-10-21 15:48:37Z" duration="9.028890" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="1050" name="Tests" fullname="EchoGame.Tests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-10-21 18:05:16Z" end-time="2026-10-21 18:05:39Z" duration="23.031341" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-suite type="TestFixture" id="1041" name="Level01Tests" fullname="EchoGame.Tests.Level01Tests" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-21 15:48:28Z" end-time="2026-10-21 15:48:34Z" duration="5.931013" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestFixture" id="1028" name="Level01Tests" fullname="EchoGame.Tests.Level01Tests" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-21 18:05:16Z" end-time="2026-10-21 18:05:22Z" duration="5.963517" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-case id="1044" name="AutoTimeoutAndOverlappingEchoes" fullname="EchoGame.Tests.Level01Tests.AutoTimeoutAndOverlappingEchoes" methodname="AutoTimeoutAndOverlappingEchoes" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" seed="1844644479" result="Passed" start-time="2026-10-21 15:48:28Z" end-time="2026-10-21 15:48:28Z" duration="0.462927" asserts="0">
+            <test-case id="1031" name="AutoTimeoutAndOverlappingEchoes" fullname="EchoGame.Tests.Level01Tests.AutoTimeoutAndOverlappingEchoes" methodname="AutoTimeoutAndOverlappingEchoes" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" seed="1485719727" result="Passed" start-time="2026-10-21 18:05:16Z" end-time="2026-10-21 18:05:16Z" duration="0.481173" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1042" name="CannotPassDoorAloneButOneEchoSolvesLevel" fullname="EchoGame.Tests.Level01Tests.CannotPassDoorAloneButOneEchoSolvesLevel" methodname="CannotPassDoorAloneButOneEchoSolvesLevel" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" seed="1854107045" result="Passed" start-time="2026-10-21 15:48:28Z" end-time="2026-10-21 15:48:32Z" duration="3.804176" asserts="0">
+            <test-case id="1029" name="CannotPassDoorAloneButOneEchoSolvesLevel" fullname="EchoGame.Tests.Level01Tests.CannotPassDoorAloneButOneEchoSolvesLevel" methodname="CannotPassDoorAloneButOneEchoSolvesLevel" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" seed="1313064330" result="Passed" start-time="2026-10-21 18:05:16Z" end-time="2026-10-21 18:05:20Z" duration="3.801485" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1045" name="KeyboardMovementJumpAndCycleCommands" fullname="EchoGame.Tests.Level01Tests.KeyboardMovementJumpAndCycleCommands" methodname="KeyboardMovementJumpAndCycleCommands" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" seed="1036290909" result="Passed" start-time="2026-10-21 15:48:32Z" end-time="2026-10-21 15:48:32Z" duration="0.613917" asserts="0">
+            <test-case id="1032" name="KeyboardMovementJumpAndCycleCommands" fullname="EchoGame.Tests.Level01Tests.KeyboardMovementJumpAndCycleCommands" methodname="KeyboardMovementJumpAndCycleCommands" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" seed="1555362805" result="Passed" start-time="2026-10-21 18:05:20Z" end-time="2026-10-21 18:05:21Z" duration="0.615191" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1043" name="TenCyclesLimitResetPauseAndExpiry" fullname="EchoGame.Tests.Level01Tests.TenCyclesLimitResetPauseAndExpiry" methodname="TenCyclesLimitResetPauseAndExpiry" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" seed="1165369814" result="Passed" start-time="2026-10-21 15:48:32Z" end-time="2026-10-21 15:48:34Z" duration="1.042666" asserts="0">
+            <test-case id="1030" name="TenCyclesLimitResetPauseAndExpiry" fullname="EchoGame.Tests.Level01Tests.TenCyclesLimitResetPauseAndExpiry" methodname="TenCyclesLimitResetPauseAndExpiry" classname="EchoGame.Tests.Level01Tests" runstate="Runnable" seed="956190905" result="Passed" start-time="2026-10-21 18:05:21Z" end-time="2026-10-21 18:05:22Z" duration="1.047848" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
@@ -46,44 +46,96 @@
               </properties>
             </test-case>
           </test-suite>
-          <test-suite type="TestFixture" id="1046" name="UITests" fullname="EchoGame.Tests.UITests" classname="EchoGame.Tests.UITests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-21 15:48:34Z" end-time="2026-10-21 15:48:37Z" duration="3.094301" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestFixture" id="1033" name="Level02Tests" fullname="EchoGame.Tests.Level02Tests" classname="EchoGame.Tests.Level02Tests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-21 18:05:22Z" end-time="2026-10-21 18:05:36Z" duration="13.867180" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-case id="1049" name="GameplayInteractionDrivesCrosshairAndPrompt" fullname="EchoGame.Tests.UITests.GameplayInteractionDrivesCrosshairAndPrompt" methodname="GameplayInteractionDrivesCrosshairAndPrompt" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="1365868155" result="Passed" start-time="2026-10-21 15:48:34Z" end-time="2026-10-21 15:48:34Z" duration="0.415626" asserts="0">
+            <test-case id="1040" name="LevelSelectionAndNextLevelUseExistingMenus" fullname="EchoGame.Tests.Level02Tests.LevelSelectionAndNextLevelUseExistingMenus" methodname="LevelSelectionAndNextLevelUseExistingMenus" classname="EchoGame.Tests.Level02Tests" runstate="Runnable" seed="556317902" result="Passed" start-time="2026-10-21 18:05:22Z" end-time="2026-10-21 18:05:22Z" duration="0.623136" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1052" name="MainMenuOnlyExposesExistingLevel" fullname="EchoGame.Tests.UITests.MainMenuOnlyExposesExistingLevel" methodname="MainMenuOnlyExposesExistingLevel" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="991816751" result="Passed" start-time="2026-10-21 15:48:34Z" end-time="2026-10-21 15:48:35Z" duration="0.608668" asserts="0">
+            <test-case id="1036" name="OneScannerCannotHoldOpposingNodesOrOpenFinalDoor" fullname="EchoGame.Tests.Level02Tests.OneScannerCannotHoldOpposingNodesOrOpenFinalDoor" methodname="OneScannerCannotHoldOpposingNodesOrOpenFinalDoor" classname="EchoGame.Tests.Level02Tests" runstate="Runnable" seed="1757468102" result="Passed" start-time="2026-10-21 18:05:22Z" end-time="2026-10-21 18:05:23Z" duration="0.920465" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1047" name="ManualRecordingStartsAtActualCycleTime" fullname="EchoGame.Tests.UITests.ManualRecordingStartsAtActualCycleTime" methodname="ManualRecordingStartsAtActualCycleTime" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="112497389" result="Passed" start-time="2026-10-21 15:48:35Z" end-time="2026-10-21 15:48:35Z" duration="0.281827" asserts="0">
+            <test-case id="1037" name="OverlapResetsOnLossThenDoorLatchesForCycle" fullname="EchoGame.Tests.Level02Tests.OverlapResetsOnLossThenDoorLatchesForCycle" methodname="OverlapResetsOnLossThenDoorLatchesForCycle" classname="EchoGame.Tests.Level02Tests" runstate="Runnable" seed="235750547" result="Passed" start-time="2026-10-21 18:05:23Z" end-time="2026-10-21 18:05:25Z" duration="1.431524" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1051" name="ResponsiveLayoutsAndVisualCaptures" fullname="EchoGame.Tests.UITests.ResponsiveLayoutsAndVisualCaptures" methodname="ResponsiveLayoutsAndVisualCaptures" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="1039242993" result="Passed" start-time="2026-10-21 15:48:35Z" end-time="2026-10-21 15:48:35Z" duration="0.590871" asserts="0">
+            <test-case id="1038" name="PauseTimelineAndEchoExpiryDoNotLeaveSignalsOrBeams" fullname="EchoGame.Tests.Level02Tests.PauseTimelineAndEchoExpiryDoNotLeaveSignalsOrBeams" methodname="PauseTimelineAndEchoExpiryDoNotLeaveSignalsOrBeams" classname="EchoGame.Tests.Level02Tests" runstate="Runnable" seed="895965033" result="Passed" start-time="2026-10-21 18:05:25Z" end-time="2026-10-21 18:05:26Z" duration="0.753126" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1050" name="SettingsApplyAndRoundTripWithoutChangingDisplay" fullname="EchoGame.Tests.UITests.SettingsApplyAndRoundTripWithoutChangingDisplay" methodname="SettingsApplyAndRoundTripWithoutChangingDisplay" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="1317283237" result="Passed" start-time="2026-10-21 15:48:35Z" end-time="2026-10-21 15:48:36Z" duration="0.158434" asserts="0">
+            <test-case id="1034" name="RealTwoCycleRouteOpensBothDoorsAndCompletesWithOneEcho" fullname="EchoGame.Tests.Level02Tests.RealTwoCycleRouteOpensBothDoorsAndCompletesWithOneEcho" methodname="RealTwoCycleRouteOpensBothDoorsAndCompletesWithOneEcho" classname="EchoGame.Tests.Level02Tests" runstate="Runnable" seed="622878148" result="Passed" start-time="2026-10-21 18:05:26Z" end-time="2026-10-21 18:05:31Z" duration="5.420521" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1048" name="TimelinePauseTracksAndUniqueIds" fullname="EchoGame.Tests.UITests.TimelinePauseTracksAndUniqueIds" methodname="TimelinePauseTracksAndUniqueIds" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="972763511" result="Passed" start-time="2026-10-21 15:48:36Z" end-time="2026-10-21 15:48:37Z" duration="1.030849" asserts="0">
+            <test-case id="1035" name="ScannerInputDiscoveryHighlightAndRelease" fullname="EchoGame.Tests.Level02Tests.ScannerInputDiscoveryHighlightAndRelease" methodname="ScannerInputDiscoveryHighlightAndRelease" classname="EchoGame.Tests.Level02Tests" runstate="Runnable" seed="1866762049" result="Passed" start-time="2026-10-21 18:05:31Z" end-time="2026-10-21 18:05:32Z" duration="1.003978" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1039" name="TenScanningCyclesResetCleanlyAndKeepOneEchoLimit" fullname="EchoGame.Tests.Level02Tests.TenScanningCyclesResetCleanlyAndKeepOneEchoLimit" methodname="TenScanningCyclesResetCleanlyAndKeepOneEchoLimit" classname="EchoGame.Tests.Level02Tests" runstate="Runnable" seed="576101985" result="Passed" start-time="2026-10-21 18:05:32Z" end-time="2026-10-21 18:05:36Z" duration="3.706075" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1041" name="UITests" fullname="EchoGame.Tests.UITests" classname="EchoGame.Tests.UITests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-10-21 18:05:36Z" end-time="2026-10-21 18:05:39Z" duration="3.195527" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1044" name="GameplayInteractionDrivesCrosshairAndPrompt" fullname="EchoGame.Tests.UITests.GameplayInteractionDrivesCrosshairAndPrompt" methodname="GameplayInteractionDrivesCrosshairAndPrompt" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="1988279654" result="Passed" start-time="2026-10-21 18:05:36Z" end-time="2026-10-21 18:05:36Z" duration="0.434810" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1047" name="MainMenuOnlyExposesExistingLevel" fullname="EchoGame.Tests.UITests.MainMenuOnlyExposesExistingLevel" methodname="MainMenuOnlyExposesExistingLevel" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="153343013" result="Passed" start-time="2026-10-21 18:05:36Z" end-time="2026-10-21 18:05:37Z" duration="0.628548" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1042" name="ManualRecordingStartsAtActualCycleTime" fullname="EchoGame.Tests.UITests.ManualRecordingStartsAtActualCycleTime" methodname="ManualRecordingStartsAtActualCycleTime" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="591265223" result="Passed" start-time="2026-10-21 18:05:37Z" end-time="2026-10-21 18:05:37Z" duration="0.307474" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1046" name="ResponsiveLayoutsAndVisualCaptures" fullname="EchoGame.Tests.UITests.ResponsiveLayoutsAndVisualCaptures" methodname="ResponsiveLayoutsAndVisualCaptures" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="1928415874" result="Passed" start-time="2026-10-21 18:05:37Z" end-time="2026-10-21 18:05:38Z" duration="0.612897" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1045" name="SettingsApplyAndRoundTripWithoutChangingDisplay" fullname="EchoGame.Tests.UITests.SettingsApplyAndRoundTripWithoutChangingDisplay" methodname="SettingsApplyAndRoundTripWithoutChangingDisplay" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="114557845" result="Passed" start-time="2026-10-21 18:05:38Z" end-time="2026-10-21 18:05:38Z" duration="0.165636" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1043" name="TimelinePauseTracksAndUniqueIds" fullname="EchoGame.Tests.UITests.TimelinePauseTracksAndUniqueIds" methodname="TimelinePauseTracksAndUniqueIds" classname="EchoGame.Tests.UITests" runstate="Runnable" seed="320694488" result="Passed" start-time="2026-10-21 18:05:38Z" end-time="2026-10-21 18:05:39Z" duration="1.038710" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
