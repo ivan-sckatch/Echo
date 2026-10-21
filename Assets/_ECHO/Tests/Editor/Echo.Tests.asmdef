@@ -1,0 +1,6 @@
+{
+  "name": "Echo.Tests",
+  "references": ["Echo.Runtime", "Echo.Editor"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

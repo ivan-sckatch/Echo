@@ -1,0 +1,5 @@
+{
+  "name": "Echo.PlayTests",
+  "references": ["Echo.Runtime", "Unity.InputSystem", "Unity.TextMeshPro", "Unity.ugui"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

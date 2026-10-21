@@ -1,0 +1,6 @@
+{
+  "name": "Echo.Editor",
+  "references": ["Echo.Runtime", "UnityEditor.TestRunner", "UnityEngine.TestRunner", "Unity.TextMeshPro", "Unity.ugui", "Unity.InputSystem"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}
