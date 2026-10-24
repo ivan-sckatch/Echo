@@ -94,6 +94,13 @@ namespace EchoGame.Tests
             Assert.That(c.Puzzle.Plate.IsActive, Is.False); Assert.That(c.Puzzle.Door.State, Is.EqualTo(DoorState.Closed));
             yield return null;
             Assert.That(c.Echoes.Container.childCount, Is.Zero);
+            yield return Walk(new Vector3(2, 0, 3));
+            c.SaveAndRestart(); Time.timeScale = 8;
+            Assert.That(c.Echoes.Echoes[0].Id, Is.EqualTo(1), "Full reset must restart echo numbering");
+            Assert.That(c.CycleNumber, Is.EqualTo(2));
+            c.Restart(false); Time.timeScale = 8;
+            Assert.That(c.CycleNumber, Is.EqualTo(3), "Each restart is a temporal cycle, not a failed attempt");
+            Assert.That(c.Echoes.Echoes[0].Id, Is.EqualTo(1));
         }
         [UnityTest] public IEnumerator AutoTimeoutAndOverlappingEchoes()
         {

@@ -25,6 +25,7 @@ namespace EchoGame.Editor
             if (command == "build") Level01Builder.Build();
             else if (command == "level02") Level02Builder.Build();
             else if (command == "ui") EchoUIBuilder.BuildAll();
+            else if (command == "compact") EchoUIBuilder.ApplyCompactUI();
             else if (command == "edit") EditTests();
             else if (command == "play") PlayTests();
         }

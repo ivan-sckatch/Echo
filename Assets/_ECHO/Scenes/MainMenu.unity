@@ -225,6 +225,10 @@ PrefabInstance:
       propertyPath: IsMainMenu
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3987185819799752686, guid: 59f2ab487f091d244a247988e224667c, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 4012412225464452786, guid: 59f2ab487f091d244a247988e224667c, type: 3}
       propertyPath: m_Name
       value: EchoUI

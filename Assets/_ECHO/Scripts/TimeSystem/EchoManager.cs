@@ -26,7 +26,7 @@ namespace EchoGame
             var echo = echoes[0]; echoes.RemoveAt(0);
             echo.gameObject.SetActive(false); Destroy(echo.gameObject);
         }
-        public void Clear() { while (echoes.Count > 0) RemoveFirst(); Changed?.Invoke(); }
+        public void Clear() { while (echoes.Count > 0) RemoveFirst(); nextId = 1; Changed?.Invoke(); }
         public void Evaluate(float time)
         {
             bool changed = false;

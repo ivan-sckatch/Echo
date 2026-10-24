@@ -211,6 +211,10 @@ PrefabInstance:
       propertyPath: DataProvider
       value: 
       objectReference: {fileID: 262456578}
+    - target: {fileID: 3987185819799752686, guid: 59f2ab487f091d244a247988e224667c, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 4012412225464452786, guid: 59f2ab487f091d244a247988e224667c, type: 3}
       propertyPath: m_Name
       value: EchoUI
@@ -2063,6 +2067,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Echo.Runtime::EchoGame.PlayerController
   View: {fileID: 1039932466}
+  Scanner: {fileID: 0}
   Speed: 4.5
   MouseSensitivity: 0.1
   JumpHeight: 1.1
@@ -3325,6 +3330,10 @@ MonoBehaviour:
   Recorder: {fileID: 813743606}
   Echoes: {fileID: 2015813564}
   Puzzle: {fileID: 1735707064}
+  Scanning: {fileID: 0}
+  PhasePuzzle: {fileID: 0}
+  LevelName: "01 \xB7 \u041F\u0435\u0440\u0432\u044B\u0439 \u043E\u0442\u0433\u043E\u043B\u043E\u0441\u043E\u043A"
+  NextLevelScene: 
   Exit: {fileID: 2076659007}
   UI: {fileID: 262456577}
   AutoStartRecording: 1

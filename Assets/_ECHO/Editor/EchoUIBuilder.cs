@@ -23,6 +23,25 @@ namespace EchoGame.Editor
         static Image segmentPrefab;
         static Sprite whiteSprite;
         public static void RefreshPrefabOnly() { Prepare(); BuildPrefab(); AssetDatabase.SaveAssets(); }
+        [MenuItem("Tools/ECHO/Apply Compact UI")]
+        public static void ApplyCompactUI()
+        {
+            if (EditorApplication.isPlaying) throw new System.InvalidOperationException("Stop Play Mode first.");
+            if (!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            var setup = EditorSceneManager.GetSceneManagerSetup();
+            RefreshPrefabOnly();
+            foreach (var path in new[] { MenuPath, Level01Builder.ScenePath, "Assets/_ECHO/Scenes/Levels/Level_02.unity" })
+            {
+                var scene = EditorSceneManager.OpenScene(path);
+                var ui = Object.FindAnyObjectByType<UIManager>();
+                if (!ui || !ui.HUD || !ui.Timeline) throw new System.InvalidOperationException("Missing UI: " + path);
+                if (path != MenuPath && !ui.DataProvider) throw new System.InvalidOperationException("Missing provider: " + path);
+                EditorSceneManager.MarkSceneDirty(scene);
+                EditorSceneManager.SaveScene(scene);
+            }
+            if (!Application.isBatchMode) EditorSceneManager.RestoreSceneManagerSetup(setup);
+            Debug.Log("ECHO Compact UI applied to prefab and all three scenes.");
+        }
         [MenuItem("Tools/ECHO/Build UI and Main Menu")]
         public static void BuildAll()
         {
@@ -123,6 +142,7 @@ namespace EchoGame.Editor
         {
             var text = Rect(name, parent).gameObject.AddComponent<TextMeshProUGUI>();
             text.font = font; text.text = value; text.fontSize = size; text.color = color ?? UITheme.Text;
+            var shadow = text.gameObject.AddComponent<Shadow>(); shadow.effectColor = new Color(0, 0, 0, .65f); shadow.effectDistance = new Vector2(1, -2);
             text.alignment = alignment; text.textWrappingMode = TextWrappingModes.Normal; text.raycastTarget = false;
             return text;
         }
@@ -206,44 +226,43 @@ namespace EchoGame.Editor
             statusPrefab = PrefabUtility.SaveAsPrefabAsset(label.gameObject, "Assets/_ECHO/UI/Prefabs/EchoStatusRow.prefab").GetComponent<TMP_Text>(); Object.DestroyImmediate(label.gameObject);
             var seg = Image("Action segment", null, UITheme.Cyan);
             segmentPrefab = PrefabUtility.SaveAsPrefabAsset(seg.gameObject, "Assets/_ECHO/UI/Prefabs/TimelineSegment.prefab").GetComponent<Image>(); Object.DestroyImmediate(seg.gameObject);
-            var row = Rect("Timeline track", null); row.sizeDelta = new Vector2(1200, 92); row.gameObject.AddComponent<LayoutElement>().preferredHeight = 92;
+            var row = Rect("Timeline track", null); row.sizeDelta = new Vector2(1200, 64); row.gameObject.AddComponent<LayoutElement>().preferredHeight = 64;
             var track = row.gameObject.AddComponent<TimelineTrackUI>();
-            track.Label = Label(row, "ЭХО", 27, 58, 4, 230, 38); track.State = Label(row, "ОЖИДАНИЕ", 18, 58, 44, 235, 32, UITheme.Muted);
-            track.Visibility = Toggle(row, "", 8, 16, 42);
-            var lane = Image("Lane", row, new Color(.12f, .2f, .24f)); Stretch(lane.rectTransform, 300, 18, 24, 18); track.Lane = lane.rectTransform; track.SegmentPrefab = segmentPrefab;
+            track.Label = Label(row, "ЭХО", 24, 58, 0, 230, 32); track.State = Label(row, "ОЖИДАНИЕ", 16, 58, 32, 235, 28, UITheme.Muted);
+            track.Visibility = Toggle(row, "", 8, 10, 42);
+            var lane = Image("Lane", row, new Color(.12f, .2f, .24f)); Stretch(lane.rectTransform, 300, 14, 24, 14); track.Lane = lane.rectTransform; track.SegmentPrefab = segmentPrefab;
             trackPrefab = PrefabUtility.SaveAsPrefabAsset(row.gameObject, "Assets/_ECHO/UI/Prefabs/TimelineTrack.prefab").GetComponent<TimelineTrackUI>(); Object.DestroyImmediate(row.gameObject);
         }
         static HUDController BuildHUD(Transform root)
         {
             var motion = Group("HUD", root); var hud = motion.gameObject.AddComponent<HUDController>(); hud.Motion = motion;
-            var echoes = Panel("Echo status", motion.transform, new Vector2(0, 1), new Vector2(40, -40), new Vector2(390, 286));
+            var echoes = Rect("Echo status", motion.transform);
+            Place(echoes, new Vector2(0, 1), new Vector2(40, -32), new Vector2(180, 44));
             hud.Echoes = echoes.gameObject.AddComponent<EchoStatusUI>();
-            hud.Echoes.Count = Label(echoes, "АКТИВНЫЕ КОПИИ: 0 / 3", 23, 22, 16, 350, 44);
-            hud.Echoes.Content = Scroll(echoes, "Echo list", new Vector2(0, 1), new Vector2(20, -74), new Vector2(350, 190), out _);
-            hud.Echoes.Empty = Text("Empty", hud.Echoes.Content, "Пока нет записей.\nСоздайте своё первое Эхо.", 25, UITheme.Muted); hud.Echoes.Empty.gameObject.AddComponent<LayoutElement>().preferredHeight = 120;
-            hud.Echoes.RowPrefab = statusPrefab;
-            var timer = Panel("Cycle timer", motion.transform, Vector2.one, new Vector2(-40, -40), new Vector2(320, 140));
+            hud.Echoes.Count = Label(echoes, "", 28, 0, 0, 180, 44, UITheme.Cyan);
+            var timer = Rect("Cycle timer", motion.transform);
+            Place(timer, Vector2.one, new Vector2(-40, -32), new Vector2(140, 84));
             hud.Timer = timer.gameObject.AddComponent<CycleTimerUI>();
-            hud.Timer.Cycle = Label(timer, "ЦИКЛ 01", 25, 24, 18, 275, 40, UITheme.Muted);
-            hud.Timer.Clock = Label(timer, "00:00 / 00:30", 38, 24, 65, 280, 56);
+            hud.Timer.Clock = Label(timer, "00:00", 36, 0, 0, 140, 48);
+            hud.Timer.Cycle = Label(timer, "", 18, 0, 48, 140, 30, UITheme.Muted);
             var dot = Image("Crosshair", motion.transform, UITheme.Text); Place(dot.rectTransform, Vector2.one * .5f, Vector2.zero, new Vector2(5, 5));
             hud.Crosshair = dot.gameObject.AddComponent<CrosshairUI>(); hud.Crosshair.Dot = dot;
             var outline = dot.gameObject.AddComponent<Outline>(); outline.effectColor = new Color(0, 0, 0, .8f); outline.effectDistance = new Vector2(1, -1);
             var prompt = Group("Interaction prompt", motion.transform); Place((RectTransform)prompt.transform, Vector2.one * .5f, new Vector2(0, -65), new Vector2(700, 54));
-            var promptImage = prompt.gameObject.AddComponent<Image>(); promptImage.color = new Color(.06f, .09f, .12f, .95f); promptImage.raycastTarget = false;
+
             hud.Prompt = prompt.gameObject.AddComponent<InteractionPromptUI>(); hud.Prompt.Motion = prompt;
             hud.Prompt.Label = Text("Prompt", prompt.transform, "", 30, UITheme.Cyan, TextAlignmentOptions.Center); Stretch(hud.Prompt.Label.rectTransform, 15, 0, 15, 0);
-            var recording = Group("Recording", motion.transform); Place((RectTransform)recording.transform, new Vector2(.5f, 0), new Vector2(0, 116), new Vector2(540, 88));
-            var recordBg = recording.gameObject.AddComponent<Image>(); recordBg.color = new Color(.063f, .094f, .125f, .96f); recordBg.raycastTarget = false;
+            var compact = Rect("Compact timeline", motion.transform);
+            Place(compact, new Vector2(.5f, 0), new Vector2(0, 36), new Vector2(680, 54));
+            hud.CompactTimeline = Progress(compact, "Cycle progress", Vector2.zero, new Vector2(0, 0), new Vector2(680, 4), UITheme.Muted, true);
+            var recording = Group("Recording", compact);
+            Stretch((RectTransform)recording.transform);
             var rec = recording.gameObject.AddComponent<RecordingIndicatorUI>(); hud.Recording = rec; rec.Motion = recording;
-            rec.Status = Label(recording.transform, "● ИДЁТ ЗАПИСЬ", 25, 18, 0, 370, 40, UITheme.Amber); rec.Elapsed = Label(recording.transform, "0.0 с", 27, 400, 0, 122, 40, UITheme.Amber);
-            rec.Progress = Progress(recording.transform, "Recording progress", new Vector2(0, 0), new Vector2(18, 14), new Vector2(504, 6), UITheme.Amber);
-            var compact = Panel("Compact timeline", motion.transform, new Vector2(.5f, 0), new Vector2(0, 24), new Vector2(1280, 78));
-            Label(compact, "R — запись     T — повтор     Tab — шкала     Esc — пауза", 24, 24, 6, 980, 36, UITheme.Muted);
-            hud.CompactTime = Label(compact, "00:00 / 00:30", 25, 1040, 6, 220, 36);
-            hud.CompactTimeline = Progress(compact, "Cycle progress", Vector2.zero, new Vector2(24, 14), new Vector2(1232, 8), UITheme.Amber, true);
+            rec.Status = Label(recording.transform, "", 22, 0, 0, 490, 32, UITheme.Amber);
+            rec.Elapsed = Label(recording.transform, "", 22, 550, 0, 130, 32, UITheme.Amber);
+            rec.Progress = Progress(recording.transform, "Recording interval", Vector2.zero, Vector2.zero, new Vector2(680, 4), UITheme.Amber);
             var notice = Group("Notification", motion.transform); Place((RectTransform)notice.transform, new Vector2(.5f, 0), new Vector2(0, 234), new Vector2(960, 94));
-            var noticeBg = notice.gameObject.AddComponent<Image>(); noticeBg.color = new Color(.063f, .094f, .125f, .97f); noticeBg.raycastTarget = false;
+
             hud.NoticePanel = notice; hud.NoticeText = Text("Message", notice.transform, "", 28, null, TextAlignmentOptions.Center); Stretch(hud.NoticeText.rectTransform, 24, 12, 24, 12);
             hud.Scanner = BuildScannerHUD(motion.transform);
             return hud;
@@ -254,13 +273,13 @@ namespace EchoGame.Editor
             var scanner = root.gameObject.AddComponent<ScannerHUD>();
             scanner.ScannerPanel = Group("Scan status", root);
             Place((RectTransform)scanner.ScannerPanel.transform, new Vector2(.5f, 0), new Vector2(0, 232), new Vector2(740, 108));
-            var bg = scanner.ScannerPanel.gameObject.AddComponent<Image>(); bg.color = new Color(.063f, .094f, .125f, .97f); bg.raycastTarget = false;
+
             scanner.Status = Label(scanner.ScannerPanel.transform, "СКАНИРОВАНИЕ", 25, 18, 6, 704, 36, UITheme.Cyan);
             scanner.ProgressLabel = Label(scanner.ScannerPanel.transform, "", 23, 18, 44, 704, 36);
             scanner.Progress = Progress(scanner.ScannerPanel.transform, "Scan progress", Vector2.zero, new Vector2(18, 12), new Vector2(704, 7), UITheme.Cyan);
             scanner.PhasePanel = Group("Phase controller", root);
             Place((RectTransform)scanner.PhasePanel.transform, Vector2.one, new Vector2(-40, -204), new Vector2(420, 224));
-            var panelBg = scanner.PhasePanel.gameObject.AddComponent<Image>(); panelBg.color = new Color(.063f, .094f, .125f, .97f); panelBg.raycastTarget = false;
+
             Label(scanner.PhasePanel.transform, "ФАЗОВЫЙ КОНТРОЛЛЕР", 24, 20, 12, 380, 38, UITheme.Cyan);
             scanner.NodeA = Label(scanner.PhasePanel.transform, "", 23, 20, 58, 380, 42);
             scanner.NodeB = Label(scanner.PhasePanel.transform, "", 23, 20, 100, 380, 42);
@@ -269,17 +288,18 @@ namespace EchoGame.Editor
         }
         static TimelineUI BuildTimeline(Transform root)
         {
-            var motion = Group("Timeline", root, true); var timeline = motion.gameObject.AddComponent<TimelineUI>(); timeline.Motion = motion;
-            var panel = Panel("Tracks panel", motion.transform, Vector2.one * .5f, Vector2.zero, new Vector2(1320, 640));
-            Label(panel, "ВРЕМЕННЫЕ СЛЕДЫ", 38, 32, 22, 900, 56);
-            Label(panel, "Движение — яркий  ·  Ожидание — приглушённый  ·  Сканер — янтарный  ·  Tab — закрыть", 23, 32, 86, 1260, 42, UITheme.Muted);
-            timeline.Clock = Label(panel, "00:00", 28, 320, 142, 150, 44, UITheme.Amber);
-            timeline.Duration = Label(panel, "00:30", 28, 1160, 142, 140, 44, UITheme.Muted);
-            timeline.Content = Scroll(panel, "Tracks scroll", new Vector2(0, 1), new Vector2(24, -200), new Vector2(1272, 384), out _);
+            var motion = Group("Timeline", root); var timeline = motion.gameObject.AddComponent<TimelineUI>(); timeline.Motion = motion;
+            var panel = Panel("Tracks panel", motion.transform, new Vector2(.5f, 0), new Vector2(0, 110), new Vector2(1320, 220));
+            Label(panel, "ВРЕМЕННЫЕ СЛЕДЫ", 28, 24, 12, 800, 44);
+            timeline.Clock = Label(panel, "00:00", 26, 1020, 12, 120, 44, UITheme.Amber);
+            Label(panel, "/", 26, 1140, 12, 30, 44, UITheme.Muted);
+            timeline.Duration = Label(panel, "00:30", 26, 1170, 12, 130, 44, UITheme.Muted);
+            timeline.Content = Scroll(panel, "Tracks scroll", new Vector2(0, 1), new Vector2(24, -68), new Vector2(1272, 100), out _);
             timeline.TrackPrefab = trackPrefab;
             var marker = Image("Shared time marker", timeline.Content, UITheme.Amber); timeline.Marker = marker.rectTransform;
             marker.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
-            Label(panel, "Просмотр приостановлен. Записи нельзя изменять.", 23, 32, 592, 1200, 34, UITheme.Muted);
+            var close = Label(panel, "Tab — закрыть", 20, 24, 0, 1200, 32, UITheme.Muted);
+            Place(close.rectTransform, Vector2.zero, new Vector2(24, 8), new Vector2(1200, 32));
             return timeline;
         }
         static RectTransform MenuPanel(UIPanelMotion motion, string title, float height = 680)
@@ -306,12 +326,12 @@ namespace EchoGame.Editor
         static PauseMenuUI BuildPause(Transform root)
         {
             var motion = Group("Pause", root, true); var menu = motion.gameObject.AddComponent<PauseMenuUI>(); menu.Motion = motion;
-            var panel = MenuPanel(motion, "ПАУЗА", 600);
+            var panel = MenuPanel(motion, "ПАУЗА", 750);
             Label(panel, "Время остановлено. Эхо ждут вас.", 27, 44, 106, 670, 54, UITheme.Muted);
             menu.Resume = Button(panel, "Продолжить", 44, 194, 672);
             menu.Restart = Button(panel, "Перезапустить цикл", 44, 282, 672);
             menu.Settings = Button(panel, "Настройки", 44, 370, 672);
-            menu.MainMenu = Button(panel, "Главное меню", 44, 458, 672); return menu;
+            menu.MainMenu = Button(panel, "Главное меню", 44, 458, 672); Label(panel, "WASD — движение · Space — прыжок\nR — запись · T — повтор · Tab — шкала\nF — действие · ПКМ — сканер · Esc — пауза", 22, 44, 560, 672, 140, UITheme.Muted); return menu;
         }
         static LevelSelectUI BuildLevels(Transform root)
         {
@@ -386,4 +406,3 @@ namespace EchoGame.Editor
         }
     }
 }
-

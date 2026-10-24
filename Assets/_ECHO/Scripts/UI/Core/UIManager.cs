@@ -33,6 +33,7 @@ namespace EchoGame.UI
             if (Provider != null)
             {
                 Provider.Changed += OnData; Provider.Notice += HUD.Notice; Provider.Interaction += HUD.SetInteraction;
+                Provider.InteractionOccurred += Timeline.AddInteraction; Provider.CycleRestarted += Timeline.ClearInteractions;
                 Commands.EscapePressed += Escape;
                 OnData(Provider.Current);
                 if (!string.IsNullOrEmpty(Provider.CurrentNotice)) HUD.Notice(Provider.CurrentNotice, false);
@@ -44,6 +45,7 @@ namespace EchoGame.UI
             UISettingsManager.Changed -= ApplySettings;
             if (Provider == null) return;
             Provider.Changed -= OnData; Provider.Notice -= HUD.Notice; Provider.Interaction -= HUD.SetInteraction;
+            Provider.InteractionOccurred -= Timeline.AddInteraction; Provider.CycleRestarted -= Timeline.ClearInteractions;
             if (Commands != null) Commands.EscapePressed -= Escape;
         }
         void ApplySettings()

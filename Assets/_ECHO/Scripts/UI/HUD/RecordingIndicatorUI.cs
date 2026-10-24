@@ -8,15 +8,28 @@ namespace EchoGame.UI
         public UISmoothFill Progress;
         public UIPanelMotion Motion;
         RecordingState previous;
-        SessionPhase previousPhase;
-        bool initialized;
+        bool initialized, visible;
+        int cycle;
+        float savedUntil;
         public void Apply(UISnapshot data)
         {
-            Status.text = data.Recording == RecordingState.Recording ? "● ИДЁТ ЗАПИСЬ" : data.Recording == RecordingState.Completed ? "ЗАПИСЬ ЗАВЕРШЕНА" : "R — НАЧАТЬ ЗАПИСЬ";
-            Elapsed.text = $"{Mathf.Max(0, data.RecordEnd - data.RecordStart):0.0} с";
-            Progress.Set((data.RecordEnd - data.RecordStart) / Mathf.Max(1, data.Duration));
-            if (!initialized || previous != data.Recording || previousPhase != data.Phase)
-            { Motion.Show(data.Phase == SessionPhase.Playing); previous = data.Recording; previousPhase = data.Phase; initialized = true; }
+            if (initialized && previous == RecordingState.Recording &&
+                (data.Recording == RecordingState.Completed || data.Cycle != cycle))
+                savedUntil = Time.unscaledTime + 1.8f;
+            if (initialized && data.Cycle != cycle && data.Echoes.Count == 0) savedUntil = 0;
+            bool recording = data.Recording == RecordingState.Recording;
+            Status.text = recording ? "● ЗАПИСЬ" : "ЗАПИСЬ СОХРАНЕНА";
+            Elapsed.text = recording ? $"{Mathf.Max(0, data.RecordEnd - data.RecordStart):0.0} с" : "";
+            var rect = Progress.Fill.rectTransform;
+            float duration = Mathf.Max(1, data.Duration);
+            rect.anchorMin = new Vector2(Mathf.Clamp01(data.RecordStart / duration), 0);
+            rect.anchorMax = new Vector2(Mathf.Clamp01(data.RecordEnd / duration), 1);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            Progress.Fill.fillAmount = 1;
+            Progress.gameObject.SetActive(recording);
+            bool show = data.Phase == SessionPhase.Playing && (recording || Time.unscaledTime < savedUntil);
+            if (!initialized || visible != show) { Motion.Show(show); visible = show; }
+            previous = data.Recording; cycle = data.Cycle; initialized = true;
         }
     }
 }

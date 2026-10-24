@@ -30,6 +30,33 @@ namespace EchoGame.Tests
             Assert.That(ui, Is.Not.Null); Assert.That(ui.Provider, Is.Not.Null);
         }
         [UnityTearDown] public IEnumerator Cleanup() { if (cycles) cycles.Game.SetState(GameState.Playing); Time.timeScale = 1; yield return null; }
+        [UnityTest] public IEnumerator CompactHUDCountsSavedEchoesWithoutStatusRows()
+        {
+            cycles.AutoStartRecording = false; cycles.Restart(true);
+            cycles.Echoes.Add(Recording());
+            cycles.Echoes.Evaluate(cycles.Duration);
+            yield return new WaitForSecondsRealtime(.2f);
+            Assert.That(ui.HUD.Echoes.Count.text, Is.EqualTo("● 1/" + cycles.Echoes.MaximumEchoes));
+            Assert.That(ui.HUD.Echoes.GetComponentsInChildren<ScrollRect>().Length, Is.Zero);
+            Assert.That(ui.HUD.Timer.Clock.text, Is.EqualTo(UITheme.Clock(cycles.Elapsed)));
+            Assert.That(ui.HUD.Recording.Motion.GetComponent<CanvasGroup>().alpha, Is.Zero);
+        }
+        [UnityTest] public IEnumerator TimelineFitsContentAndBoundsWithOverflow()
+        {
+            cycles.AutoStartRecording = false; cycles.Restart(true);
+            ui.SetState(UIState.Timeline); yield return null;
+            var scroll = ui.Timeline.Content.GetComponentInParent<ScrollRect>();
+            var panel = (RectTransform)scroll.transform.parent;
+            float emptyHeight = panel.rect.height;
+            int capacity = cycles.Echoes.MaximumEchoes;
+            cycles.Echoes.MaximumEchoes = 12;
+            for (int i = 0; i < 10; i++) cycles.Echoes.Add(Recording());
+            ui.SetState(UIState.Timeline); yield return null;
+            Assert.That(panel.rect.height, Is.GreaterThan(emptyHeight));
+            Assert.That(panel.rect.height, Is.LessThanOrEqualTo(((RectTransform)ui.Timeline.Motion.transform).rect.height * .4f + 1));
+            Assert.That(scroll.content.rect.height, Is.GreaterThan(scroll.viewport.rect.height));
+            cycles.Echoes.MaximumEchoes = capacity;
+        }
         static EchoRecording Recording() => new EchoRecording(new List<EchoFrame> {
             new EchoFrame(0, Vector3.zero, 0, 0), new EchoFrame(4, Vector3.right * 6, 0, 0),
             new EchoFrame(8, Vector3.right * 6, 0, 0) });
@@ -96,8 +123,11 @@ namespace EchoGame.Tests
                 Assert.That(ui.HUD.Prompt.Label.text, Does.Contain("[F] Проверить механизм"));
                 InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.F)); yield return null; yield return null;
                 Assert.That(interactable.Count, Is.EqualTo(1));
+                Assert.That(ui.Timeline.InteractionCount, Is.EqualTo(1));
                 cycles.Game.SetState(GameState.Timeline); yield return null;
                 Assert.That(ui.HUD.Crosshair.gameObject.activeSelf, Is.False);
+                Assert.That(ui.Timeline.Content.GetComponentsInChildren<Image>(), Has.Some.Matches<Image>(marker => marker.name == "F interaction tick"));
+                cycles.Restart(false); Assert.That(ui.Timeline.InteractionCount, Is.Zero);
             }
             finally { Object.Destroy(target); InputSystem.RemoveDevice(keyboard); }
         }
@@ -125,7 +155,7 @@ namespace EchoGame.Tests
             var canvas = ui.GetComponent<Canvas>(); var camera = cycles.Player.View.GetComponent<Camera>();
             Assert.That(ui.HUD.CompactTimeline.Fill.sprite, Is.Not.Null, "Filled images require a sprite to render partial progress");
             Assert.That(ui.HUD.Recording.Progress.Fill.sprite, Is.Not.Null);
-            var sizes = new[] { new Vector2Int(1280, 720), new Vector2Int(1920, 1080), new Vector2Int(2560, 1440), new Vector2Int(1920, 1200), new Vector2Int(2520, 1080) };
+            var sizes = new[] { new Vector2Int(1280, 720), new Vector2Int(1920, 1080), new Vector2Int(2560, 1440), new Vector2Int(1920, 1200), new Vector2Int(3440, 1440) };
             try
             {
                 canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera; canvas.planeDistance = .5f;
@@ -136,7 +166,7 @@ namespace EchoGame.Tests
                     {
                         var settings = JsonUtility.FromJson<UISettingsData>(original); settings.Scale = scale; settings.Animations = false;
                         UISettingsManager.Save(settings, false); yield return null; Canvas.ForceUpdateCanvases();
-                        foreach (var rect in new[] { ui.HUD.Timer.GetComponent<RectTransform>(), ui.HUD.Echoes.GetComponent<RectTransform>(), ui.HUD.CompactTime.transform.parent.GetComponent<RectTransform>(), ui.Settings.Motion.transform.GetChild(0).GetComponent<RectTransform>(), ui.Timeline.Motion.transform.GetChild(0).GetComponent<RectTransform>() })
+                        foreach (var rect in new[] { ui.HUD.Timer.GetComponent<RectTransform>(), ui.HUD.Echoes.GetComponent<RectTransform>(), ui.HUD.CompactTimeline.transform.parent.GetComponent<RectTransform>(), ui.Settings.Motion.transform.GetChild(0).GetComponent<RectTransform>(), ui.Timeline.Motion.transform.GetChild(0).GetComponent<RectTransform>() })
                             AssertInside(rect, camera, size);
                         if (scale == 1)
                         {
@@ -166,7 +196,7 @@ namespace EchoGame.Tests
             var sampled = new HashSet<Color32>();
             for (int x = 20; x < texture.width; x += 37) for (int y = 20; y < texture.height; y += 37) sampled.Add(image.GetPixel(x, y));
             Assert.That(sampled.Count, Is.GreaterThan(4), "UI capture must contain rendered content, not a blank camera background");
-            Directory.CreateDirectory("Assets/_ECHO/Tests/Results"); File.WriteAllBytes("Assets/_ECHO/Tests/Results/" + name + ".png", image.EncodeToPNG());
+            Directory.CreateDirectory("Logs/CompactUI/Captures"); File.WriteAllBytes("Logs/CompactUI/Captures/" + name + ".png", image.EncodeToPNG());
             Object.Destroy(image); RenderTexture.active = previous;
         }
         public static IEnumerator CaptureShell(UIManager shell, string name)
@@ -195,4 +225,3 @@ namespace EchoGame.Tests
         }
     }
 }
-
