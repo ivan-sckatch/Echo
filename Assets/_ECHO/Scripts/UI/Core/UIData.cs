@@ -5,6 +5,22 @@ namespace EchoGame.UI
 {
     public enum UIState { Gameplay, Timeline, Paused, Settings, Completed, MainMenu, LevelSelect }
     public enum SessionPhase { Playing, Paused, Timeline, Completed, Resetting }
+    public enum EchoLimitModel { SavedRecordingsLimit, ConcurrentEchoLimit }
+    public sealed class RecordingRejection
+    {
+        public string Reason;
+        public float? Start, End;
+        public int? RecordingId;
+    }
+    // Optional future gameplay/configuration adapter. The current bridge defaults to saved recordings.
+    public interface IUIContextSource
+    {
+        bool IsResearch { get; }
+        EchoLimitModel LimitModel { get; }
+        int ConcurrentEchoCapacity { get; }
+        int ActiveEchoCount { get; }
+        RecordingRejection CurrentRejection { get; }
+    }
     public enum RecordingState { Waiting, Recording, Completed }
     public enum EchoState { Waiting, Playback, Completed, SyncError }
     [Serializable] public struct ActionInterval
@@ -26,6 +42,13 @@ namespace EchoGame.UI
     }
     public sealed class UISnapshot
     {
+        public bool IsResearch;
+        public EchoLimitModel LimitModel;
+        public int ConcurrentEchoCapacity, ActiveEchoCount;
+        public RecordingRejection Rejection;
+        public float Remaining => Mathf.Max(0, Duration - Time);
+        public string LimitLabel => LimitModel == EchoLimitModel.ConcurrentEchoLimit
+            ? $"АКТИВНО: {ActiveEchoCount}/{ConcurrentEchoCapacity}" : $"ЗАПИСИ: {Echoes.Count}/{Capacity}";
         public int Cycle, Capacity, Attempts, EchoesUsed;
         public float Time, Duration, RecordStart, RecordEnd;
         public RecordingState Recording;

@@ -19,6 +19,14 @@ namespace EchoGame.Tests
         public int Count;
         public void Interact() => Count++;
     }
+    public sealed class UITestContext : MonoBehaviour, IUIContextSource
+    {
+        public bool IsResearch => true;
+        public EchoLimitModel LimitModel => EchoLimitModel.ConcurrentEchoLimit;
+        public int ConcurrentEchoCapacity => 2;
+        public int ActiveEchoCount => 1;
+        public RecordingRejection CurrentRejection => null;
+    }
     public class UITests
     {
         UIManager ui;
@@ -36,9 +44,9 @@ namespace EchoGame.Tests
             cycles.Echoes.Add(Recording());
             cycles.Echoes.Evaluate(cycles.Duration);
             yield return new WaitForSecondsRealtime(.2f);
-            Assert.That(ui.HUD.Echoes.Count.text, Is.EqualTo("● 1/" + cycles.Echoes.MaximumEchoes));
+            Assert.That(ui.HUD.Echoes.Count.text, Is.EqualTo("ЗАПИСИ: 1/" + cycles.Echoes.MaximumEchoes));
             Assert.That(ui.HUD.Echoes.GetComponentsInChildren<ScrollRect>().Length, Is.Zero);
-            Assert.That(ui.HUD.Timer.Clock.text, Is.EqualTo(UITheme.Clock(cycles.Elapsed)));
+            Assert.That(ui.HUD.Timer.Clock.text, Is.EqualTo(UITheme.Clock(Mathf.Ceil(cycles.Duration - cycles.Elapsed))));
             Assert.That(ui.HUD.Recording.Motion.GetComponent<CanvasGroup>().alpha, Is.Zero);
         }
         [UnityTest] public IEnumerator TimelineFitsContentAndBoundsWithOverflow()
@@ -56,6 +64,73 @@ namespace EchoGame.Tests
             Assert.That(panel.rect.height, Is.LessThanOrEqualTo(((RectTransform)ui.Timeline.Motion.transform).rect.height * .4f + 1));
             Assert.That(scroll.content.rect.height, Is.GreaterThan(scroll.viewport.rect.height));
             cycles.Echoes.MaximumEchoes = capacity;
+        }
+        [UnityTest] public IEnumerator CountdownResearchAndConcurrentScheduleUseSnapshot()
+        {
+            cycles.Game.SetState(GameState.Paused); ui.SetState(UIState.Gameplay);
+            var echoes = new List<EchoUIData>();
+            for (int i = 0; i < 4; i++) echoes.Add(new EchoUIData {
+                Id = i + 1, Start = i * 8, End = Mathf.Min(30, (i + 1) * 8), State = EchoState.Playback,
+                Intervals = new List<ActionInterval>() });
+            var data = new UISnapshot { Time = 7, Duration = 30, Phase = SessionPhase.Playing,
+                Recording = RecordingState.Recording, RecordStart = 5, RecordEnd = 7,
+                Echoes = echoes, LimitModel = EchoLimitModel.ConcurrentEchoLimit, ConcurrentEchoCapacity = 1, ActiveEchoCount = 1 };
+            ui.HUD.Apply(data); yield return new WaitForSecondsRealtime(.2f);
+            Assert.That(ui.HUD.Timer.Clock.text, Is.EqualTo("00:23"));
+            Assert.That(ui.HUD.Echoes.Count.text, Is.EqualTo("АКТИВНО: 1/1"));
+            Assert.That(ui.HUD.Schedule.LaneCount, Is.EqualTo(1));
+            Assert.That(ui.HUD.Schedule.SegmentCount, Is.EqualTo(4));
+            Assert.That(ui.HUD.CompactTimeline.Marker.anchorMin.x, Is.EqualTo(7f/30).Within(.001));
+            Assert.That(ui.HUD.Recording.Progress.Fill.rectTransform.anchorMin.x, Is.EqualTo(5f/30).Within(.001));
+            Assert.That(ui.HUD.Recording.Progress.Fill.rectTransform.anchorMax.x, Is.EqualTo(7f/30).Within(.001));
+            Assert.That(ui.HUD.Recording.Motion.GetComponent<CanvasGroup>().alpha, Is.EqualTo(1));
+            yield return CaptureShell(ui, "CompactScheduleSequential");
+            var rejection = new RecordingRejection { Reason = "Лимит Эхо превышен:", Start = 10, End = 15 };
+            data.Rejection = rejection; ui.HUD.Apply(data); ui.Timeline.Apply(data);
+            Assert.That(ui.HUD.Schedule.Conflict.gameObject.activeSelf, Is.True);
+            Assert.That(ui.HUD.Schedule.Conflict.rectTransform.anchorMin.x, Is.EqualTo(10f/30).Within(.001));
+            Assert.That(ui.Timeline.Conflict.gameObject.activeSelf, Is.True);
+            Assert.That(data.Echoes.Count, Is.EqualTo(4));
+            yield return CaptureShell(ui, "CompactScheduleConflict");
+            data.IsResearch = true; data.Rejection = null;
+            ui.HUD.Apply(data); yield return new WaitForSecondsRealtime(.2f);
+            Assert.That(ui.HUD.Timer.Clock.text, Is.EqualTo("ИССЛЕДОВАНИЕ"));
+            Assert.That(ui.HUD.CompactTimeline.Marker.gameObject.activeSelf, Is.False);
+            Assert.That(ui.HUD.Recording.Motion.GetComponent<CanvasGroup>().alpha, Is.Zero);
+            ui.Timeline.Apply(data);
+            Assert.That(ui.Timeline.Summary.text, Does.Contain("Сохранено: 4"));
+        }
+        [UnityTest] public IEnumerator SavedLimitWarnsAndReplacementKeepsRealSchedule()
+        {
+            cycles.AutoStartRecording = false; cycles.Restart(true);
+            for (int i = 0; i < cycles.Echoes.MaximumEchoes; i++) cycles.Echoes.Add(Recording());
+            int oldest = ui.Provider.Current.Echoes[0].Id;
+            Assert.That(ui.HUD.NoticeText.text, Does.Contain("заменит старейшую"));
+            cycles.Echoes.Add(Recording()); yield return null;
+            Assert.That(ui.Provider.Current.Echoes.Count, Is.EqualTo(cycles.Echoes.MaximumEchoes));
+            Assert.That(ui.Provider.Current.Echoes[0].Id, Is.Not.EqualTo(oldest));
+            Assert.That(ui.HUD.Schedule.SegmentCount, Is.EqualTo(cycles.Echoes.MaximumEchoes));
+            Assert.That(ui.HUD.Schedule.LaneCount, Is.EqualTo(cycles.Echoes.MaximumEchoes));
+            yield return CaptureShell(ui, "CompactScheduleOverlap");
+        }
+        [UnityTest] public IEnumerator OptionalContextAdapterUsesExplicitModeAndCanBeDisconnected()
+        {
+            var bridge = (UIEventBridge)ui.DataProvider;
+            var context = bridge.gameObject.AddComponent<UITestContext>();
+            bridge.ContextSource = context; bridge.Publish(); yield return null;
+            Assert.That(ui.Provider.Current.IsResearch, Is.True);
+            Assert.That(ui.HUD.Timer.Clock.text, Is.EqualTo("ИССЛЕДОВАНИЕ"));
+            Assert.That(ui.HUD.Echoes.Count.text, Is.EqualTo("АКТИВНО: 1/2"));
+            cycles.Game.SetState(GameState.Timeline); yield return null;
+            Assert.That(ui.Provider.Current.IsResearch, Is.True);
+            Assert.That(ui.Timeline.Summary.text, Does.Contain("ИССЛЕДОВАНИЕ"));
+            Assert.That(ui.Timeline.Clock.text, Is.EqualTo("—"));
+            cycles.Game.SetState(GameState.Playing);
+            bridge.ContextSource = null; bridge.Publish();
+            Assert.That(ui.Provider.Current.IsResearch, Is.False);
+            Assert.That(ui.Provider.Current.LimitModel, Is.EqualTo(EchoLimitModel.SavedRecordingsLimit));
+            Assert.That(ui.Provider.Current.Phase, Is.EqualTo(SessionPhase.Playing));
+            Object.Destroy(context);
         }
         static EchoRecording Recording() => new EchoRecording(new List<EchoFrame> {
             new EchoFrame(0, Vector3.zero, 0, 0), new EchoFrame(4, Vector3.right * 6, 0, 0),

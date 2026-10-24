@@ -229,6 +229,7 @@ namespace EchoGame.Editor
             var row = Rect("Timeline track", null); row.sizeDelta = new Vector2(1200, 64); row.gameObject.AddComponent<LayoutElement>().preferredHeight = 64;
             var track = row.gameObject.AddComponent<TimelineTrackUI>();
             track.Label = Label(row, "ЭХО", 24, 58, 0, 230, 32); track.State = Label(row, "ОЖИДАНИЕ", 16, 58, 32, 235, 28, UITheme.Muted);
+            track.Label.enableAutoSizing = true; track.Label.fontSizeMin = 16; track.Label.fontSizeMax = 24; track.Label.textWrappingMode = TextWrappingModes.NoWrap;
             track.Visibility = Toggle(row, "", 8, 10, 42);
             var lane = Image("Lane", row, new Color(.12f, .2f, .24f)); Stretch(lane.rectTransform, 300, 14, 24, 14); track.Lane = lane.rectTransform; track.SegmentPrefab = segmentPrefab;
             trackPrefab = PrefabUtility.SaveAsPrefabAsset(row.gameObject, "Assets/_ECHO/UI/Prefabs/TimelineTrack.prefab").GetComponent<TimelineTrackUI>(); Object.DestroyImmediate(row.gameObject);
@@ -237,14 +238,15 @@ namespace EchoGame.Editor
         {
             var motion = Group("HUD", root); var hud = motion.gameObject.AddComponent<HUDController>(); hud.Motion = motion;
             var echoes = Rect("Echo status", motion.transform);
-            Place(echoes, new Vector2(0, 1), new Vector2(40, -32), new Vector2(180, 44));
+            Place(echoes, new Vector2(0, 1), new Vector2(40, -32), new Vector2(360, 44));
             hud.Echoes = echoes.gameObject.AddComponent<EchoStatusUI>();
-            hud.Echoes.Count = Label(echoes, "", 28, 0, 0, 180, 44, UITheme.Cyan);
+            hud.Echoes.Count = Label(echoes, "", 26, 0, 0, 360, 44, UITheme.Cyan);
             var timer = Rect("Cycle timer", motion.transform);
-            Place(timer, Vector2.one, new Vector2(-40, -32), new Vector2(140, 84));
+            Place(timer, Vector2.one, new Vector2(-40, -32), new Vector2(280, 84));
             hud.Timer = timer.gameObject.AddComponent<CycleTimerUI>();
-            hud.Timer.Clock = Label(timer, "00:00", 36, 0, 0, 140, 48);
-            hud.Timer.Cycle = Label(timer, "", 18, 0, 48, 140, 30, UITheme.Muted);
+            hud.Timer.Clock = Label(timer, "00:30", 36, 0, 0, 280, 48);
+            hud.Timer.Cycle = Label(timer, "", 18, 0, 48, 280, 30, UITheme.Muted);
+            hud.Timer.Clock.alignment = hud.Timer.Cycle.alignment = TextAlignmentOptions.Right;
             var dot = Image("Crosshair", motion.transform, UITheme.Text); Place(dot.rectTransform, Vector2.one * .5f, Vector2.zero, new Vector2(5, 5));
             hud.Crosshair = dot.gameObject.AddComponent<CrosshairUI>(); hud.Crosshair.Dot = dot;
             var outline = dot.gameObject.AddComponent<Outline>(); outline.effectColor = new Color(0, 0, 0, .8f); outline.effectDistance = new Vector2(1, -1);
@@ -253,14 +255,28 @@ namespace EchoGame.Editor
             hud.Prompt = prompt.gameObject.AddComponent<InteractionPromptUI>(); hud.Prompt.Motion = prompt;
             hud.Prompt.Label = Text("Prompt", prompt.transform, "", 30, UITheme.Cyan, TextAlignmentOptions.Center); Stretch(hud.Prompt.Label.rectTransform, 15, 0, 15, 0);
             var compact = Rect("Compact timeline", motion.transform);
-            Place(compact, new Vector2(.5f, 0), new Vector2(0, 36), new Vector2(680, 54));
-            hud.CompactTimeline = Progress(compact, "Cycle progress", Vector2.zero, new Vector2(0, 0), new Vector2(680, 4), UITheme.Muted, true);
+            Place(compact, new Vector2(.5f, 0), new Vector2(0, 36), new Vector2(680, 8));
+            hud.CompactTimeline = Progress(compact, "Cycle progress", Vector2.zero, new Vector2(0, 0), new Vector2(680, 8), UITheme.Muted, true);
             var recording = Group("Recording", compact);
             Stretch((RectTransform)recording.transform);
             var rec = recording.gameObject.AddComponent<RecordingIndicatorUI>(); hud.Recording = rec; rec.Motion = recording;
-            rec.Status = Label(recording.transform, "", 22, 0, 0, 490, 32, UITheme.Amber);
-            rec.Elapsed = Label(recording.transform, "", 22, 550, 0, 130, 32, UITheme.Amber);
-            rec.Progress = Progress(recording.transform, "Recording interval", Vector2.zero, Vector2.zero, new Vector2(680, 4), UITheme.Amber);
+            rec.Status = Label(recording.transform, "", 20, 0, -32, 490, 28, UITheme.Amber);
+            rec.Elapsed = Label(recording.transform, "", 20, 550, -32, 130, 28, UITheme.Amber);
+            rec.Progress = Progress(recording.transform, "Recording interval", Vector2.zero, Vector2.zero, new Vector2(680, 8), UITheme.Amber);
+            foreach (float endpoint in new[] { 0f, 1f })
+            {
+                var cap = Image(endpoint == 0 ? "Recording start" : "Recording end", rec.Progress.Fill.transform, UITheme.Amber);
+                cap.rectTransform.anchorMin = cap.rectTransform.anchorMax = new Vector2(endpoint, .5f);
+                cap.rectTransform.sizeDelta = new Vector2(2, 14); cap.rectTransform.anchoredPosition = Vector2.zero;
+            }
+            hud.Schedule = compact.gameObject.AddComponent<CompactEchoTimelineUI>();
+            hud.Schedule.Player = hud.CompactTimeline; hud.Schedule.Recording = rec; hud.Schedule.SegmentPrefab = segmentPrefab;
+            hud.Schedule.LabelPrefab = Text("Compact segment ID template", compact, "", 12, UITheme.Background, TextAlignmentOptions.Center);
+            hud.Schedule.LabelPrefab.enableAutoSizing = true; hud.Schedule.LabelPrefab.fontSizeMin = 6; hud.Schedule.LabelPrefab.fontSizeMax = 12;
+            hud.Schedule.LabelPrefab.textWrappingMode = TextWrappingModes.NoWrap;
+            hud.Schedule.LabelPrefab.gameObject.SetActive(false);
+            hud.Schedule.Conflict = Image("Conflict interval", compact, new Color(UITheme.Error.r, UITheme.Error.g, UITheme.Error.b, .5f));
+            hud.Schedule.Conflict.gameObject.SetActive(false);
             var notice = Group("Notification", motion.transform); Place((RectTransform)notice.transform, new Vector2(.5f, 0), new Vector2(0, 234), new Vector2(960, 94));
 
             hud.NoticePanel = notice; hud.NoticeText = Text("Message", notice.transform, "", 28, null, TextAlignmentOptions.Center); Stretch(hud.NoticeText.rectTransform, 24, 12, 24, 12);
@@ -295,11 +311,16 @@ namespace EchoGame.Editor
             Label(panel, "/", 26, 1140, 12, 30, 44, UITheme.Muted);
             timeline.Duration = Label(panel, "00:30", 26, 1170, 12, 130, 44, UITheme.Muted);
             timeline.Content = Scroll(panel, "Tracks scroll", new Vector2(0, 1), new Vector2(24, -68), new Vector2(1272, 100), out _);
+            timeline.Summary = Label(panel, "", 19, 24, 54, 1272, 28, UITheme.Muted);
+            timeline.Summary.enableAutoSizing = true; timeline.Summary.fontSizeMin = 14; timeline.Summary.fontSizeMax = 19; timeline.Summary.textWrappingMode = TextWrappingModes.NoWrap;
             timeline.TrackPrefab = trackPrefab;
             var marker = Image("Shared time marker", timeline.Content, UITheme.Amber); timeline.Marker = marker.rectTransform;
             marker.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
             var close = Label(panel, "Tab — закрыть", 20, 24, 0, 1200, 32, UITheme.Muted);
             Place(close.rectTransform, Vector2.zero, new Vector2(24, 8), new Vector2(1200, 32));
+            timeline.Conflict = Image("Timeline conflict interval", timeline.Content, new Color(UITheme.Error.r, UITheme.Error.g, UITheme.Error.b, .4f));
+            timeline.Conflict.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
+            timeline.Conflict.gameObject.SetActive(false);
             return timeline;
         }
         static RectTransform MenuPanel(UIPanelMotion motion, string title, float height = 680)

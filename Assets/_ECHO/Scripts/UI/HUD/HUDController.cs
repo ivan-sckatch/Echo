@@ -11,6 +11,9 @@ namespace EchoGame.UI
         public EchoStatusUI Echoes;
         public RecordingIndicatorUI Recording;
         public UISmoothFill CompactTimeline;
+        public CompactEchoTimelineUI Schedule;
+        int previousSaved = -1, previousCapacity = -1;
+        RecordingRejection rejection;
         public CrosshairUI Crosshair;
         public InteractionPromptUI Prompt;
         public ScannerHUD Scanner;
@@ -20,9 +23,20 @@ namespace EchoGame.UI
         public void Apply(UISnapshot data)
         {
             Timer.Apply(data); Echoes.Apply(data); Recording.Apply(data);
+            if (data.LimitModel == EchoLimitModel.SavedRecordingsLimit && data.Capacity > 0 && data.Echoes.Count >= data.Capacity &&
+                (previousSaved < data.Capacity || previousCapacity != data.Capacity))
+                Notice("Лимит записей достигнут. Следующая запись заменит старейшую.", false);
+            previousSaved = data.Echoes.Count; previousCapacity = data.Capacity;
+            if (data.Rejection != null && data.Rejection != rejection)
+            {
+                rejection = data.Rejection;
+                string interval = rejection.Start.HasValue && rejection.End.HasValue ? $" {rejection.Start:0.#}–{rejection.End:0.#} с" : "";
+                Notice(rejection.Reason + interval, true);
+            }
             if (CompactTime) CompactTime.gameObject.SetActive(false);
-            CompactTimeline.Fill.color = data.Recording == RecordingState.Recording ? UITheme.Muted : data.Echoes.Count > 0 ? UITheme.Cyan : UITheme.Muted;
-            CompactTimeline.Set(data.Time / Mathf.Max(1, data.Duration));
+            CompactTimeline.Fill.color = UITheme.Muted;
+            CompactTimeline.Set(data.IsResearch ? 0 : data.Time / Mathf.Max(.001f, data.Duration));
+            if (Schedule) Schedule.Apply(data);
             if (Scanner) Scanner.Apply(data.Scanner);
             Crosshair.SetInteractable(interaction || data.Scanner != null && data.Scanner.Enabled && data.Scanner.HasTarget);
             var noticeRect = (RectTransform)NoticePanel.transform;
@@ -36,7 +50,7 @@ namespace EchoGame.UI
             else
             {
                 noticeRect.anchorMin = noticeRect.anchorMax = new Vector2(.5f, 0); noticeRect.pivot = new Vector2(.5f, 0);
-                noticeRect.anchoredPosition = new Vector2(0, 234); noticeRect.sizeDelta = new Vector2(960, 94); NoticeText.fontSize = 28;
+                noticeRect.anchoredPosition = new Vector2(0, Schedule ? Mathf.Max(234, ((RectTransform)Schedule.transform).rect.height + 100) : 234); noticeRect.sizeDelta = new Vector2(960, 94); NoticeText.fontSize = 28;
             }
         }
         public void Show(bool visible)

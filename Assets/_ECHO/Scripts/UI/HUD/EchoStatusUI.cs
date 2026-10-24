@@ -11,7 +11,7 @@ namespace EchoGame.UI
         public void Apply(UISnapshot data)
         {
             int count = data.Echoes.Count;
-            Count.text = "● " + count + "/" + data.Capacity;
+            Count.text = data.LimitLabel;
             if (Empty) Empty.gameObject.SetActive(false);
             if (Content) Content.gameObject.SetActive(false);
             if (previous >= 0 && count > previous)

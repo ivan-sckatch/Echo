@@ -9,6 +9,7 @@ namespace EchoGame.UI
         public GameManager Game;
         public TimeCycleManager Cycles;
         public PlayerInteraction InteractionSource;
+        public MonoBehaviour ContextSource;
         public UISnapshot Current { get; private set; } = new UISnapshot();
         public string CurrentNotice { get; private set; }
         public event Action<UISnapshot> Changed;
@@ -91,6 +92,14 @@ namespace EchoGame.UI
                     SceneManager.GetActiveScene().name == "Level_01" && Application.CanStreamedLevelBeLoaded("Level_02") ? "Level_02" : null,
                 Scanner = BuildScannerData()
             };
+            if (ContextSource is IUIContextSource context)
+            {
+                Current.LimitModel = context.LimitModel;
+                Current.ConcurrentEchoCapacity = context.ConcurrentEchoCapacity;
+                Current.ActiveEchoCount = context.ActiveEchoCount;
+                Current.Rejection = context.CurrentRejection;
+                Current.IsResearch = context.IsResearch;
+            }
             Changed?.Invoke(Current);
             foreach (var echo in list) if (echo.State == EchoState.SyncError && errors.Add(echo.Id))
             { SynchronizationError?.Invoke(echo.Id); Notice?.Invoke($"Эхо {echo.Id:00}: ошибка синхронизации", true); }
