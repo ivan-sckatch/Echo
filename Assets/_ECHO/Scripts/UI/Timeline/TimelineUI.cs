@@ -54,6 +54,7 @@ namespace EchoGame.UI
             bool research = data.IsResearch;
             Clock.text = research ? "—" : UITheme.Clock(data.Time); Duration.text = research ? "—" : UITheme.Clock(data.Duration);
             if (Summary) Summary.text = $"Сохранено: {data.Echoes.Count} · {data.LimitLabel}" + (research ? " · ИССЛЕДОВАНИЕ" : "");
+            if (Summary && data.LimitModel == EchoLimitModel.ConcurrentEchoLimit) Summary.text += " · Del — удалить последнюю запись";
             if (data.Rejection != null && rejection != data.Rejection) { rejection = data.Rejection; conflictUntil = Time.unscaledTime + 3; }
             bool conflict = rejection != null && rejection.Start.HasValue && rejection.End.HasValue && rejection.End > rejection.Start && Time.unscaledTime < conflictUntil;
             if (Conflict)

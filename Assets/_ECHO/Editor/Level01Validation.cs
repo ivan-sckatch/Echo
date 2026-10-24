@@ -24,6 +24,10 @@ namespace EchoGame.Editor
             catch (IOException) { return; } // A request may still be being written by a local tool.
             if (command == "build") Level01Builder.Build();
             else if (command == "level02") Level02Builder.Build();
+            else if (command == "level03") Level03Builder.Build();
+            else if (command == "level03batch") Level03Builder.BuildBatch();
+            else if (command == "windows") Level03Builder.BuildPlayer();
+            else if (command == "player-tests") PlayerTests();
             else if (command == "ui") EchoUIBuilder.BuildAll();
             else if (command == "compact") EchoUIBuilder.ApplyCompactUI();
             else if (command == "edit") EditTests();
@@ -33,6 +37,14 @@ namespace EchoGame.Editor
         public static void EditTests() => Run(TestMode.EditMode, "Echo.Tests", "EditMode");
         [MenuItem("Tools/ECHO/Validate/Play Mode tests")]
         public static void PlayTests() => Run(TestMode.PlayMode, "Echo.PlayTests", "PlayMode");
+        [MenuItem("Tools/ECHO/Validate/Level 03 Windows Player tests")]
+        public static void PlayerTests()
+        {
+            Directory.CreateDirectory("Assets/_ECHO/Tests/Results"); SessionState.SetString("EchoTestReport", "WindowsPlayMode");
+            // This package exposes the public legacy platform on Filter and forwards it to ExecutionSettings.
+            runner.Execute(new ExecutionSettings(new Filter { testMode = TestMode.PlayMode, assemblyNames = new[] { "Echo.PlayTests" },
+                groupNames = new[] { "^EchoGame.Tests.Level03Tests" }, targetPlatform = BuildTarget.StandaloneWindows64 }) { playerHeartbeatTimeout = 180 });
+        }
         static void Run(TestMode mode, string assembly, string report)
         {
             Directory.CreateDirectory("Assets/_ECHO/Tests/Results");

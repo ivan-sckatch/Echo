@@ -12,6 +12,16 @@ namespace EchoGame
         public Transform Body;
         public float CameraPitch { get; private set; }
         public EchoFrame CurrentFrame { get; private set; }
+        int actionIndex;
+        public void ResetEvents() => actionIndex = 0;
+        public void ReplayEvents(float time, Level03Controller level)
+        {
+            while (actionIndex < Recording.Actions.Count && Recording.Actions[actionIndex].Time <= time)
+            {
+                var action = Recording.Actions[actionIndex++];
+                if (action.Time >= Recording.StartTime && action.Time < Recording.EndTime) level.Replay(this, action);
+            }
+        }
         public void Initialize(EchoRecording recording) { Recording = recording; Evaluate(0); }
         public void Evaluate(float time)
         {

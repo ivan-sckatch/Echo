@@ -6,6 +6,7 @@ namespace EchoGame
     {
         [Range(1, 16)] public int MaximumEchoes = 3;
         public Transform Container;
+        public bool ConcurrentIntervals;
         public EchoPlayback Prefab;
         readonly List<EchoPlayback> echoes = new List<EchoPlayback>();
         int nextId = 1;
@@ -14,12 +15,24 @@ namespace EchoGame
         public void Add(EchoRecording recording)
         {
             if (recording == null) return;
-            while (echoes.Count >= MaximumEchoes) RemoveFirst();
+            if (ConcurrentIntervals && FindConflict(recording) != null) return;
+            while (!ConcurrentIntervals && echoes.Count >= MaximumEchoes) RemoveFirst();
             var echo = Instantiate(Prefab, Container);
             echo.Id = nextId++;
             echo.name = "Echo " + echo.Id.ToString("00");
             echo.Initialize(recording); echoes.Add(echo);
             Changed?.Invoke();
+        }
+        public EchoPlayback FindConflict(EchoRecording recording)
+        {
+            foreach (var e in echoes)
+                if (recording.StartTime < e.Recording.EndTime && e.Recording.StartTime < recording.EndTime) return e;
+            return null;
+        }
+        public void Remove(int id)
+        {
+            var echo = echoes.Find(e => e.Id == id); if (!echo) return;
+            echoes.Remove(echo); echo.gameObject.SetActive(false); Destroy(echo.gameObject); Changed?.Invoke();
         }
         void RemoveFirst()
         {

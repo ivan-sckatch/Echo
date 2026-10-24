@@ -6,11 +6,19 @@ namespace EchoGame
     {
         readonly List<EchoFrame> frames;
         public IReadOnlyList<EchoFrame> Frames => frames;
+        readonly List<RecordedInteraction> actions;
+        public IReadOnlyList<RecordedInteraction> Actions => actions;
+        public float StartTime => frames[0].Time;
+        public float EndTime => Duration;
+        public float Length => EndTime - StartTime;
         public float Duration => frames[frames.Count - 1].Time;
-        public EchoRecording(List<EchoFrame> source)
+        public EchoRecording(List<EchoFrame> source, List<RecordedInteraction> interactions = null)
         {
             if (source == null || source.Count == 0) throw new System.ArgumentException("Recording requires frames.");
             frames = new List<EchoFrame>(source);
+            actions = interactions == null ? new List<RecordedInteraction>() : new List<RecordedInteraction>(interactions);
+            actions.Sort((a, b) => a.Time.CompareTo(b.Time));
+            actions.RemoveAll(a => a.Time < StartTime || a.Time >= EndTime);
             for (int i = 1; i < frames.Count; i++)
                 if (frames[i].Time < frames[i - 1].Time) throw new System.ArgumentException("Frames must be ordered.");
         }
@@ -24,6 +32,7 @@ namespace EchoGame
         }
         public bool HasActivity(float distance)
         {
+            if (actions.Count > 0) return true;
             // Displacement from start avoids counting gravity jitter or idle mouse motion.
             foreach (var frame in frames)
                 if ((frame.Position - frames[0].Position).sqrMagnitude >= distance * distance) return true;

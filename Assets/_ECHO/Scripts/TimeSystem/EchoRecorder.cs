@@ -8,8 +8,10 @@ namespace EchoGame
         [Min(.1f)] public float MinimumActivity = .75f;
         readonly List<EchoFrame> frames = new List<EchoFrame>(4096);
         EchoFrame previous;
+        readonly List<RecordedInteraction> actions = new List<RecordedInteraction>();
+        public void RecordInteraction(RecordedInteraction action) => actions.Add(action);
         int nextSample;
-        public void Begin(EchoFrame initial) { frames.Clear(); frames.Add(initial); previous = initial; nextSample = Mathf.FloorToInt(initial.Time * SampleRate) + 1; }
+        public void Begin(EchoFrame initial) { actions.Clear(); frames.Clear(); frames.Add(initial); previous = initial; nextSample = Mathf.FloorToInt(initial.Time * SampleRate) + 1; }
         public void Capture(EchoFrame current)
         {
             // Resample the observed trajectory on an exact grid, independent of rendering FPS.
@@ -25,7 +27,7 @@ namespace EchoGame
             Capture(final);
             if (frames[frames.Count - 1].Time < final.Time) frames.Add(final);
             else frames[frames.Count - 1] = final;
-            var result = new EchoRecording(frames);
+            var result = new EchoRecording(frames, actions);
             return result.HasActivity(MinimumActivity) || (meaningfulInteraction && result.Duration - result.Frames[0].Time >= .1f) ? result : null;
         }
     }

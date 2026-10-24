@@ -11,7 +11,7 @@ namespace EchoGame.Editor
     public static class Level02Builder
     {
         public const string ScenePath = "Assets/_ECHO/Scenes/Levels/Level_02.unity";
-        static TMP_FontAsset font;
+        internal static TMP_FontAsset font;
         [MenuItem("Tools/ECHO/Build Level 02")]
         public static void Build() => BuildScene(true);
         public static void BuildScene(bool promptToSave)
@@ -88,9 +88,9 @@ namespace EchoGame.Editor
             EditorBuildSettings.scenes = scenes.ToArray(); AssetDatabase.SaveAssets();
             Debug.Log("ECHO: Level 02 «Скрытый сигнал» создан и сохранён. Level_01 не изменён.");
         }
-        static GameObject Node(string name, GameObject parent = null)
+        internal static GameObject Node(string name, GameObject parent = null)
         { var go = new GameObject(name); if (parent) go.transform.SetParent(parent.transform, false); return go; }
-        static Material Existing(string name) => AssetDatabase.LoadAssetAtPath<Material>("Assets/_ECHO/Materials/Greybox/" + name + ".mat");
+        internal static Material Existing(string name) => AssetDatabase.LoadAssetAtPath<Material>("Assets/_ECHO/Materials/Greybox/" + name + ".mat");
         static Material Material(string name, Color color, bool beam = false)
         {
             string path = "Assets/_ECHO/Materials/Scanner/" + name + ".mat";
@@ -104,7 +104,7 @@ namespace EchoGame.Editor
             }
             EditorUtility.SetDirty(mat); return mat;
         }
-        static GameObject Cube(string name, GameObject parent, Vector3 position, Vector3 size, Material material)
+        internal static GameObject Cube(string name, GameObject parent, Vector3 position, Vector3 size, Material material)
         { var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = name; go.transform.SetParent(parent.transform, false); go.transform.position = position; go.transform.localScale = size; go.GetComponent<Renderer>().sharedMaterial = material; return go; }
         static void Partition(GameObject parent, float z, Material material)
         {
@@ -112,7 +112,7 @@ namespace EchoGame.Editor
             Cube("Partition east " + z, parent, new Vector3(5.25f, 2, z), new Vector3(7.5f, 4, .5f), material);
             Cube("Lintel " + z, parent, new Vector3(0, 3.75f, z), new Vector3(3, .5f, .5f), material);
         }
-        static DoorController Door(string name, GameObject parent, float z, Material red, Material green)
+        internal static DoorController Door(string name, GameObject parent, float z, Material red, Material green)
         {
             var go = Node(name, parent); go.transform.position = new Vector3(0, 0, z); var door = go.AddComponent<DoorController>();
             door.Panel = Cube("Sliding panel", go, new Vector3(0, 1.7f, z), new Vector3(3, 3.4f, .4f), red).transform;
@@ -125,7 +125,7 @@ namespace EchoGame.Editor
             var node = go.AddComponent<PhaseNode>(); node.StableId = id; node.DisplayName = "ФАЗОВЫЙ УЗЕЛ"; node.Mode = mode;
             node.Visual = go.GetComponent<Renderer>(); node.DiscoveredMaterial = discovered; node.InactiveMaterial = inactive; node.ActiveMaterial = active; node.ResetNode(); return node;
         }
-        static TMP_Text Sign(string name, GameObject parent, Vector3 position, string content, Vector2 size, float fontSize, Color color, Material backing, float yaw = 0)
+        internal static TMP_Text Sign(string name, GameObject parent, Vector3 position, string content, Vector2 size, float fontSize, Color color, Material backing, float yaw = 0)
         {
             var root = Node(name, parent); root.transform.position = position; root.transform.rotation = Quaternion.Euler(0, yaw, 0);
             var panel = Cube("Backing", root, position + root.transform.forward * .04f, new Vector3(size.x, size.y, .05f), backing);

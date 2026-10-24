@@ -24,16 +24,20 @@ namespace EchoGame
             if (Time.unscaledTime < nextCheck) return;
             nextCheck = Time.unscaledTime + .1f;
             IInteractable next = null;
-            if (Game.State == GameState.Playing && Physics.Raycast(View.transform.position, View.transform.forward, out var hit, Range, Mask, QueryTriggerInteraction.Ignore))
-                next = hit.collider.GetComponentInParent<IInteractable>();
+            if (Game.State == GameState.Playing)
+                next = InteractionAccess.Trace(View.transform.position, View.transform.forward, Range, Mask);
             if (next != null && !next.CanInteract) next = null;
             if (ReferenceEquals(next, target)) return;
             target = next; TargetChanged?.Invoke(target != null, target != null ? target.Prompt : "");
         }
         public void TryInteract()
         {
-            if (Game.State != GameState.Playing || target == null || !target.CanInteract) return;
+            if (Game.State != GameState.Playing) return;
+            target = InteractionAccess.Trace(View.transform.position, View.transform.forward, Range, Mask);
+            if (target == null || !target.CanInteract) return;
             string prompt = target.Prompt; target.Interact(); InteractionPerformed?.Invoke(prompt);
+            if (target is PulseButton button && Game.Cycles.IsRecording)
+            { Game.Cycles.Recorder.Capture(Game.Cycles.Player.Capture(Game.Cycles.Elapsed)); Game.Cycles.Recorder.RecordInteraction(new RecordedInteraction(Game.Cycles.Elapsed, button.StableId)); }
         }
     }
 }

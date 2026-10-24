@@ -357,11 +357,12 @@ namespace EchoGame.Editor
         static LevelSelectUI BuildLevels(Transform root)
         {
             var motion = Group("Level select", root, true); var menu = motion.gameObject.AddComponent<LevelSelectUI>(); menu.Motion = motion;
-            var panel = MenuPanel(motion, "ВЫБОР УРОВНЯ", 580);
+            var panel = MenuPanel(motion, "ВЫБОР УРОВНЯ", 690);
             Label(panel, "Испытательные комплексы", 26, 44, 116, 670, 64, UITheme.Muted);
             menu.FirstLevel = Button(panel, "01 · Первый отголосок", 44, 210, 672, 80);
             menu.SecondLevel = Button(panel, "02 · Скрытый сигнал", 44, 306, 672, 80);
-            menu.Back = Button(panel, "Назад", 44, 450, 672); return menu;
+            menu.ThirdLevel = Button(panel, "03 · Поймай момент", 44, 410, 672, 80);
+            menu.Back = Button(panel, "Назад", 44, 550, 672); return menu;
         }
         static LevelCompleteUI BuildComplete(Transform root)
         {

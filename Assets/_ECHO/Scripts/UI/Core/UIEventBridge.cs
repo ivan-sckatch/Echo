@@ -89,7 +89,8 @@ namespace EchoGame.UI
                     Game.State == GameState.Timeline ? SessionPhase.Timeline : Game.State == GameState.LevelCompleted ? SessionPhase.Completed : SessionPhase.Resetting,
                 Echoes = list, Level = Cycles.LevelName,
                 NextScene = !string.IsNullOrEmpty(Cycles.NextLevelScene) ? Cycles.NextLevelScene :
-                    SceneManager.GetActiveScene().name == "Level_01" && Application.CanStreamedLevelBeLoaded("Level_02") ? "Level_02" : null,
+                    SceneManager.GetActiveScene().name == "Level_01" && Application.CanStreamedLevelBeLoaded("Level_02") ? "Level_02" :
+                    SceneManager.GetActiveScene().name == "Level_02" && Application.CanStreamedLevelBeLoaded("Level_03") ? "Level_03" : null,
                 Scanner = BuildScannerData()
             };
             if (ContextSource is IUIContextSource context)
@@ -121,6 +122,7 @@ namespace EchoGame.UI
                 { result.Add(new ActionInterval(start, frames[i - 1].Time, scanning ? "Сканирование" : moving ? "Движение" : "Ожидание", moving, scanning, target)); start = frames[i - 1].Time; moving = current; scanning = scanningNow; target = targetNow; }
             }
             result.Add(new ActionInterval(start, recording.Duration, scanning ? "Сканирование" : moving ? "Движение" : "Ожидание", moving, scanning, target));
+            foreach (var action in recording.Actions) result.Add(new ActionInterval(action.Time, Mathf.Min(recording.EndTime, action.Time + .18f), "F · " + action.TargetId, false, false, action.TargetId));
             return result;
         }
         ScannerUIData BuildScannerData()
