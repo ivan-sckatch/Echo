@@ -57,6 +57,16 @@ namespace EchoGame.UI
         void OnClock(float time) { int bucket = Mathf.FloorToInt(time * 10); if (bucket != clockBucket) { clockBucket = bucket; Publish(); } }
         void OnRestart() { clockBucket = -1; errors.Clear(); PruneCache(); Publish(); CycleRestarted?.Invoke(); }
         void OnRecording() => Publish();
+        void LateUpdate()
+        {
+            // Research freezes the cycle clock; targeting must still refresh every frame.
+            if (Cycles && Game && Game.State == GameState.Research)
+            {
+                var scanner = Cycles.Player.Scanner;
+                if (Current.Scanner == null || !Current.Scanner.Research || Current.Scanner.Target != scanner.InspectionTitle ||
+                    Current.Scanner.Action != scanner.InspectionAction) Publish();
+            }
+        }
         void OnInteraction(bool available, string text) => Interaction?.Invoke(available, text);
         void OnInteractionPerformed(string text) => InteractionOccurred?.Invoke(text, Cycles.Elapsed);
         public void PushNotice(string text, float seconds = 8) { CurrentNotice = text; Notice?.Invoke(text, false); }
@@ -91,7 +101,8 @@ namespace EchoGame.UI
                 Echoes = list, Level = Cycles.LevelName,
                 NextScene = !string.IsNullOrEmpty(Cycles.NextLevelScene) ? Cycles.NextLevelScene :
                     SceneManager.GetActiveScene().name == "Level_01" && Application.CanStreamedLevelBeLoaded("Level_02") ? "Level_02" :
-                    SceneManager.GetActiveScene().name == "Level_02" && Application.CanStreamedLevelBeLoaded("Level_03") ? "Level_03" : null,
+                    SceneManager.GetActiveScene().name == "Level_02" && Application.CanStreamedLevelBeLoaded("Level_03") ? "Level_03" :
+                    SceneManager.GetActiveScene().name == "Level_03" && Application.CanStreamedLevelBeLoaded("Level_04") ? "Level_04" : null,
                 Scanner = BuildScannerData()
             };
             if (ContextSource is IUIContextSource context)
@@ -132,8 +143,23 @@ namespace EchoGame.UI
         }
         ScannerUIData BuildScannerData()
         {
-            if (!Cycles.Scanning || !Cycles.PhasePuzzle) return null;
+            if (Game.State == GameState.Research)
+            {
+                var scanner = Cycles.Player.Scanner;
+                bool found = scanner.Current.Enabled && !string.IsNullOrEmpty(scanner.InspectionTitle);
+                return new ScannerUIData { Research = true, Enabled = found, HasTarget = found, Target = scanner.InspectionTitle, Action = scanner.InspectionAction };
+            }
+            if (!Cycles.Scanning || (!Cycles.PhasePuzzle && !Cycles.SecurityPuzzle)) return null;
             var world = Cycles.Scanning; var target = world.PlayerTarget; var puzzle = Cycles.PhasePuzzle;
+            if (Cycles.SecurityPuzzle)
+            {
+                var security = Cycles.SecurityPuzzle;
+                return new ScannerUIData { SequentialNodes = true, Enabled = Game.State == GameState.Playing && world.PlayerScanner.Current.Enabled,
+                    HasTarget = target, Target = target ? target.DisplayName : "", Discovered = target && target.IsDiscovered, Activated = target && target.HasActivated,
+                    Discovery = target ? target.DiscoveryProgress(0) : 0, Activation = target ? target.ActivationProgress(0) : 0,
+                    NodeAActive = security.FirstNode.HasActivated, NodeBActive = security.ExitNode.HasActivated,
+                    NodeAOwner = security.FirstNode.HasActivated ? "АКТИВИРОВАН" : "ОЖИДАНИЕ", NodeBOwner = security.ExitNode.HasActivated ? "АКТИВИРОВАН" : "ОЖИДАНИЕ", DoorUnlocked = security.CanExit };
+            }
             return new ScannerUIData {
                 Enabled = Game.State == GameState.Playing && world.PlayerScanner.Current.Enabled,
                 HasTarget = target, Target = target ? target.DisplayName : "", Discovered = target && target.IsDiscovered,

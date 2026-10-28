@@ -13,6 +13,7 @@ namespace EchoGame
         public Material PlayerBeamMaterial, EchoBeamMaterial;
         [Min(.001f)] public float BeamWidth = .02f;
         public float SynchronizationRoomStart = 11.5f;
+        public bool SynchronizationHints = true;
         public ScanRegistry Registry { get; } = new ScanRegistry();
         public PhaseNode PlayerTarget { get; private set; }
         public ScanVisualController PlayerVisual { get; private set; }
@@ -79,8 +80,17 @@ namespace EchoGame
                 { discoveryHintShown = true; Cycles.Notify("Удерживайте сканирующий луч на фазовом узле.", 7); }
             }
             PlayerVisual.Render(PlayerScanner.Current, playerEnd, PlayerTarget);
-            if (!overlapHintShown && Cycles.Player.Feet.z >= SynchronizationRoomStart)
+            if (SynchronizationHints && !overlapHintShown && Cycles.Player.Feet.z >= SynchronizationRoomStart)
             { overlapHintShown = true; Cycles.Notify("Некоторые механизмы требуют одновременного воздействия.", 8); }
+        }
+        public void Analyze()
+        {
+            EnsureInitialized();
+            var frame = PlayerScanner.ReadInput();
+            PlayerScanner.Inspect(Cycles);
+            PlayerTarget = ScanDetector.Trace(frame, PlayerScanner.Range, DetectionMask, Registry, false, out var end);
+            PlayerScanner.SetTarget(PlayerTarget ? PlayerTarget.StableId : null);
+            PlayerVisual.Render(frame, end, PlayerTarget);
         }
     }
 }

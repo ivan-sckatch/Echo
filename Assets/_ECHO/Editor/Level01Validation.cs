@@ -26,6 +26,27 @@ namespace EchoGame.Editor
             else if (command == "level02") Level02Builder.Build();
             else if (command == "level03") Level03Builder.Build();
             else if (command == "level03batch") Level03Builder.BuildBatch();
+            else if (command == "level04batch") Level04Builder.BuildBatch();
+            else if (command == "preview04") Level04Builder.PreviewStart();
+            else if (command == "inspection") ResearchInspectionBuilder.Apply();
+            else if (command == "vision") Run(TestMode.PlayMode, "Echo.PlayTests", "Level04FloorVision", "^EchoGame.Tests.CameraVisionFloorTests");
+            else if (command == "playerfloor")
+            {
+                SessionState.SetString("EchoTestReport", "Level04WindowsFloorVision");
+                runner.Execute(new ExecutionSettings(new Filter { testMode = TestMode.PlayMode, assemblyNames = new[] { "Echo.PlayTests" },
+                    groupNames = new[] { "^EchoGame.Tests.Level04Tests", "^EchoGame.Tests.ResearchInspectionTests", "^EchoGame.Tests.CameraVisionFloorTests" }, targetPlatform = BuildTarget.StandaloneWindows64 }) { playerHeartbeatTimeout = 180 });
+            }
+            else if (command == "playerinspection")
+            {
+                SessionState.SetString("EchoTestReport", "Level04WindowsInspection");
+                runner.Execute(new ExecutionSettings(new Filter { testMode = TestMode.PlayMode, assemblyNames = new[] { "Echo.PlayTests" },
+                    groupNames = new[] { "^EchoGame.Tests.Level04Tests", "^EchoGame.Tests.ResearchInspectionTests" }, targetPlatform = BuildTarget.StandaloneWindows64 }) { playerHeartbeatTimeout = 180 });
+            }
+            else if (command == "play04") Run(TestMode.PlayMode, "Echo.PlayTests", "Level04PlayMode", "^EchoGame.Tests.Level04Tests");
+            else if (command == "regression04") Run(TestMode.PlayMode, "Echo.PlayTests", "Level04AllPlayMode");
+            else if (command == "edit04") Run(TestMode.EditMode, "Echo.Tests", "Level04EditMode");
+            else if (command == "windows04") Level04Builder.BuildPlayer();
+            else if (command == "player04") PlayerTests04();
             else if (command == "hint-preview") Level03Builder.PreviewFragmentHint();
             else if (command == "windows") Level03Builder.BuildPlayer();
             else if (command == "player-tests") PlayerTests();
@@ -46,11 +67,16 @@ namespace EchoGame.Editor
             runner.Execute(new ExecutionSettings(new Filter { testMode = TestMode.PlayMode, assemblyNames = new[] { "Echo.PlayTests" },
                 groupNames = new[] { "^EchoGame.Tests.Level03Tests" }, targetPlatform = BuildTarget.StandaloneWindows64 }) { playerHeartbeatTimeout = 180 });
         }
-        static void Run(TestMode mode, string assembly, string report)
+        static void Run(TestMode mode, string assembly, string report, string group = null)
         {
             Directory.CreateDirectory(Level03Builder.Reports);
             SessionState.SetString("EchoTestReport", report);
-            runner.Execute(new ExecutionSettings(new Filter { testMode = mode, assemblyNames = new[] { assembly } }));
+            runner.Execute(new ExecutionSettings(new Filter { testMode = mode, assemblyNames = new[] { assembly }, groupNames = group == null ? null : new[] { group } }));
+        }
+        static void PlayerTests04()
+        {
+            SessionState.SetString("EchoTestReport", "Level04WindowsPlayMode");
+            runner.Execute(new ExecutionSettings(new Filter { testMode = TestMode.PlayMode, assemblyNames = new[] { "Echo.PlayTests" }, groupNames = new[] { "^EchoGame.Tests.Level04Tests" }, targetPlatform = BuildTarget.StandaloneWindows64 }) { playerHeartbeatTimeout = 180 });
         }
         class Results : ICallbacks
         {
@@ -59,7 +85,10 @@ namespace EchoGame.Editor
             public void TestFinished(ITestResultAdaptor result) { }
             public void RunFinished(ITestResultAdaptor result)
             {
-                string path = Level03Builder.Reports + "/" + SessionState.GetString("EchoTestReport", "Tests") + ".xml";
+                string name = SessionState.GetString("EchoTestReport", "Tests");
+                string directory = name.StartsWith("Level04") ? Level04Builder.Reports : Level03Builder.Reports;
+                Directory.CreateDirectory(directory);
+                string path = directory + "/" + name + ".xml";
                 TestRunnerApi.SaveResultToFile(result, path);
                 Debug.Log($"ECHO tests: {result.PassCount} passed, {result.FailCount} failed. {path}");
             }

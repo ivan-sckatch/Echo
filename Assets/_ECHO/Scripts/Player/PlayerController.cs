@@ -16,11 +16,12 @@ namespace EchoGame
         bool jumpRequested;
         CharacterController controller;
         public float Pitch => pitch;
+        public bool Immobilized { get { var target = GetComponent<CaptureTarget>(); return target && target.Immobilized; } }
         public Vector3 Feet => transform.position;
         void Awake() => controller = GetComponent<CharacterController>();
         public void Look()
         {
-            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) jumpRequested = true;
+            if (!Immobilized && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) jumpRequested = true;
             var mouse = Mouse.current;
             if (mouse == null) return;
             Vector2 delta = mouse.delta.ReadValue() * MouseSensitivity;
@@ -30,6 +31,7 @@ namespace EchoGame
         }
         public void Simulate(float dt)
         {
+            if (Immobilized) { vertical = 0; jumpRequested = false; return; }
             var k = Keyboard.current;
             Vector2 input = k == null ? Vector2.zero : new Vector2(
                 (k.dKey.isPressed ? 1 : 0) - (k.aKey.isPressed ? 1 : 0),

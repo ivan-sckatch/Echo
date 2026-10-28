@@ -61,6 +61,9 @@ namespace EchoGame.UI
     }
     public sealed class ScannerUIData
     {
+        public bool Research;
+        public string Action;
+        public bool SequentialNodes;
         public bool Enabled, HasTarget, Discovered, Activated, NodeAActive, NodeBActive, DoorUnlocked;
         public string Target, NodeAOwner, NodeBOwner;
         public float Discovery, Activation, Overlap, RequiredOverlap;

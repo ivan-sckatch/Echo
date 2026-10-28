@@ -13,18 +13,19 @@ namespace EchoGame
         public event Action EscapeRequested;
         float resumeTimeScale = 1;
         GameState resumeState = GameState.Playing;
-        void Start() { if (Cycles.TimedPuzzle) { Cycles.TimedPuzzle.Initialize(); Cycles.TimedPuzzle.EnterResearch(); } else Cycles.Restart(true); }
+        void Start() { if (Cycles.TimedPuzzle) Cycles.TimedPuzzle.Initialize(); if (Cycles.ResearchLevel != null) Cycles.ResearchLevel.EnterResearch(); else Cycles.Restart(true); }
         void Update()
         {
             var k = Keyboard.current;
             if (k == null) return;
-            if (Cycles.TimedPuzzle)
+            if (Cycles.ResearchLevel != null)
             {
-                if (State == GameState.Research && k.enterKey.wasPressedThisFrame) { Cycles.TimedPuzzle.StartCycle(); return; }
-                if ((State == GameState.Playing || State == GameState.LevelCompleted) && k.backspaceKey.wasPressedThisFrame) { Cycles.TimedPuzzle.EnterResearch(); return; }
-                if (State == GameState.Timeline && k.deleteKey.wasPressedThisFrame) { Cycles.TimedPuzzle.DeleteLast(); return; }
+                if (State == GameState.Research && k.enterKey.wasPressedThisFrame) { Cycles.ResearchLevel.StartCycle(); return; }
+                if ((State == GameState.Playing || State == GameState.LevelCompleted) && k.backspaceKey.wasPressedThisFrame) { Cycles.ResearchLevel.EnterResearch(); return; }
+                if (Cycles.TimedPuzzle && State == GameState.Timeline && k.deleteKey.wasPressedThisFrame) { Cycles.TimedPuzzle.DeleteLast(); return; }
                 if (State == GameState.Research) Cycles.Player.Look();
             }
+            if (Cycles.SecurityPuzzle && State == GameState.Timeline && k.deleteKey.wasPressedThisFrame) { Cycles.SecurityPuzzle.DeleteLast(); return; }
             if (k.escapeKey.wasPressedThisFrame)
             {
                 if (EscapeRequested != null) EscapeRequested.Invoke();
@@ -54,10 +55,10 @@ namespace EchoGame
         }
         public void TogglePause()
         {
-            if (State == GameState.Playing || State == GameState.Timeline || State == GameState.Research) { resumeState = Cycles.TimedPuzzle && Cycles.TimedPuzzle.IsResearch ? GameState.Research : GameState.Playing; SetState(GameState.Paused); }
+            if (State == GameState.Playing || State == GameState.Timeline || State == GameState.Research) { resumeState = Cycles.IsResearch ? GameState.Research : GameState.Playing; SetState(GameState.Paused); }
             else if (State == GameState.Paused) Resume();
         }
-        public void Resume() { if (State == GameState.Timeline) SetState(Cycles.TimedPuzzle && Cycles.TimedPuzzle.IsResearch ? GameState.Research : GameState.Playing); else if (State == GameState.Paused) SetState(resumeState); }
+        public void Resume() { if (State == GameState.Timeline) SetState(Cycles.IsResearch ? GameState.Research : GameState.Playing); else if (State == GameState.Paused) SetState(resumeState); }
         public void Replay() => Cycles.Restart(true);
         public void EndSession() { Time.timeScale = 1; Cursor.lockState = CursorLockMode.None; Cursor.visible = true; }
         void OnDestroy() => EndSession();

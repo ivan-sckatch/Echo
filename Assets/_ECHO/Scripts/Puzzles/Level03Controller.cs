@@ -3,7 +3,7 @@ using EchoGame.UI;
 using UnityEngine;
 namespace EchoGame
 {
-    public sealed class Level03Controller : MonoBehaviour, IUIContextSource
+    public sealed class Level03Controller : MonoBehaviour, IUIContextSource, IResearchLevel
     {
         public TimeCycleManager Cycles;
         public PulseButton[] Buttons;
@@ -33,7 +33,7 @@ namespace EchoGame
         }
         public void EnterResearch()
         {
-            Cycles.Restart(false, false); researchSuspended = true; Cycles.Game.SetState(GameState.Research);
+            Cycles.Restart(false, false); Cycles.Echoes.Evaluate(-1); researchSuspended = true; Cycles.Game.SetState(GameState.Research);
             Cycles.Notify("ИССЛЕДОВАНИЕ · Enter — начать цикл. ПКМ — анализ объектов. Механизмы отключены.");
         }
         public void StartCycle() { researchSuspended = false; Cycles.Restart(false); }
@@ -69,12 +69,13 @@ namespace EchoGame
             if (!scanVisual) scanVisual = ScanVisualController.Create(transform, "Analysis scanner", ScannerMaterial, .02f);
             var scanner = Cycles.Player.Scanner;
             var scan = scanner.ReadInput();
+            scanner.Inspect(Cycles);
             Vector3 end = scan.Origin + scan.Direction * scanner.Range;
             PulseButton target = null;
             if (scan.Enabled && Physics.Raycast(scan.Origin, scan.Direction, out var hit, scanner.Range, ~0, QueryTriggerInteraction.Ignore))
             {
                 end = hit.point; target = hit.collider.GetComponentInParent<PulseButton>();
-                if (target && target != lastAnalysis) Cycles.Notify($"АНАЛИЗ · {target.Door.DoorLabel}: " + (target.Door.LatchUntilReset ? "открытие до сброса" : $"окно {target.Door.Window:0} с") + ". Камера изолируется.");
+                if (!IsResearch && target && target != lastAnalysis) Cycles.Notify($"АНАЛИЗ · {target.Door.DoorLabel}: " + (target.Door.LatchUntilReset ? "открытие до сброса" : $"окно {target.Door.Window:0} с") + ". Камера изолируется.");
             }
             lastAnalysis = target; scanVisual.Render(scan, end, target);
         }

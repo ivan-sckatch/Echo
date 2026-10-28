@@ -4,6 +4,8 @@ namespace EchoGame
     public sealed class TimeCycleManager : MonoBehaviour
     {
         [Min(1)] public float Duration = 30;
+        [Tooltip("Below this world Y, discard the unfinished recording and return to spawn. Saved fragments survive.")]
+        public float FallResetHeight = -2;
         public GameManager Game;
         public PlayerController Player;
         public Transform Spawn;
@@ -20,6 +22,9 @@ namespace EchoGame
         public int CycleNumber { get; private set; }
         public int Attempts { get; private set; }
         public Level03Controller TimedPuzzle;
+        public Level04Controller SecurityPuzzle;
+        public IResearchLevel ResearchLevel => TimedPuzzle ? (IResearchLevel)TimedPuzzle : SecurityPuzzle;
+        public bool IsResearch => ResearchLevel != null && ResearchLevel.IsResearch;
         public void MarkEchoUsed(int id) => usedEchoes.Add(id);
         readonly System.Collections.Generic.HashSet<int> usedEchoes = new System.Collections.Generic.HashSet<int>();
         public int UsedEchoCount => usedEchoes.Count;
@@ -35,12 +40,19 @@ namespace EchoGame
         bool recordedMechanism;
         void FixedUpdate()
         {
-            if (Game.State == GameState.Research && TimedPuzzle) { TimedPuzzle.ResearchTick(Time.fixedDeltaTime); return; }
+            if (Game.State == GameState.Research && ResearchLevel != null)
+            {
+                if (ResetAfterFall()) return;
+                ResearchLevel.ResearchTick(Time.fixedDeltaTime); ResetAfterFall(); return;
+            }
             if (Game.State != GameState.Playing) return;
+            if (ResetAfterFall()) return;
             float dt = Mathf.Min(Time.fixedDeltaTime, Duration - Elapsed);
             Player.Simulate(dt);
+            if (ResetAfterFall()) return;
             Elapsed = Mathf.Min(Duration, Elapsed + dt);
             Echoes.Evaluate(Elapsed);
+            if (SecurityPuzzle) SecurityPuzzle.TickCameras();
             if (TimedPuzzle)
             {
                 foreach (var echo in Echoes.Echoes) echo.ReplayEvents(Elapsed, TimedPuzzle);
@@ -60,16 +72,24 @@ namespace EchoGame
                 if (!plateHint && Puzzle.Plate.IsActive) { plateHint = true; Notification?.Invoke("Платформа держит дверь открытой. Оставьте здесь своё Эхо.", 8); }
             }
             if (IsRecording) Recorder.Capture(Player.Capture(Elapsed));
+            if (SecurityPuzzle) SecurityPuzzle.Tick(dt);
             ClockChanged?.Invoke(Elapsed);
-            if (Exit.Contains(Player) && (!PhasePuzzle || PhasePuzzle.FinalDoorUnlocked)) { IsRecording = false; RecordingEnd = Elapsed; RecordingChanged?.Invoke(); Game.SetState(GameState.LevelCompleted); return; }
+            if (Exit.Contains(Player) && (!PhasePuzzle || PhasePuzzle.FinalDoorUnlocked) && (!SecurityPuzzle || SecurityPuzzle.CanExit)) { IsRecording = false; RecordingEnd = Elapsed; RecordingChanged?.Invoke(); Game.SetState(GameState.LevelCompleted); return; }
             if (Elapsed >= Duration) SaveAndRestart();
+        }
+        bool ResetAfterFall()
+        {
+            if (Player.Feet.y >= FallResetHeight) return false;
+            if (IsResearch) ResearchLevel.EnterResearch(); else Restart(false);
+            Notify("Падение. Возврат на старт; сохранённые фрагменты не удалены.");
+            return true;
         }
         public void SaveAndRestart()
         {
             if (Game.State != GameState.Playing) return;
             if (IsRecording)
             {
-                var recording = Recorder.Finish(Player.Capture(Elapsed), recordedMechanism);
+                var recording = Recorder.Finish(Player.Capture(Elapsed), recordedMechanism || SecurityPuzzle && Player.Immobilized);
                 if (recording != null && Echoes.ConcurrentIntervals)
                 {
                     var conflict = Echoes.FindConflict(recording);
@@ -78,7 +98,13 @@ namespace EchoGame
                         IsRecording = false; HasFinishedRecording = false; RecordingEnd = Elapsed;
                         foreach (var saved in conflict.Recording.Fragments)
                             if (recording.StartTime < saved.EndTime && saved.StartTime < recording.EndTime)
-                            { TimedPuzzle.Reject("Запись отклонена: пересечение интервалов", Mathf.Max(recording.StartTime, saved.StartTime), Mathf.Min(recording.EndTime, saved.EndTime), conflict.Id); break; }
+                            {
+                                float start = Mathf.Max(recording.StartTime, saved.StartTime), end = Mathf.Min(recording.EndTime, saved.EndTime);
+                                if (TimedPuzzle) TimedPuzzle.Reject("Запись отклонена: пересечение интервалов", start, end, conflict.Id);
+                                else if (SecurityPuzzle) SecurityPuzzle.Reject("Запись отклонена: пересечение интервалов", start, end, conflict.Id);
+                                else Notify("Запись отклонена: пересечение интервалов");
+                                break;
+                            }
                         RecordingChanged?.Invoke(); return;
                     }
                 }
@@ -107,6 +133,7 @@ namespace EchoGame
             if (Scanning) Scanning.ResetSimulation();
             if (PhasePuzzle) PhasePuzzle.ResetMechanisms();
             if (TimedPuzzle) TimedPuzzle.ResetMechanisms();
+            if (SecurityPuzzle) SecurityPuzzle.ResetMechanisms();
             if (Puzzle) Puzzle.ResetMechanisms();
             Elapsed = 0; if (countCycle) { CycleNumber++; Attempts++; }
             Echoes.Evaluate(0);

@@ -95,6 +95,7 @@ namespace EchoGame.Editor
             var hud = root.GetComponentInChildren<HUDController>(true); var controls = new GameObject("Level03 controls", typeof(RectTransform)); controls.transform.SetParent(hud.transform, false);
             var label = controls.AddComponent<TextMeshProUGUI>(); label.font = font; label.fontSize = 21; label.color = UITheme.Text; label.alignment = TextAlignmentOptions.BottomLeft;
             var rect = label.rectTransform; rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero; rect.anchoredPosition = new Vector2(38, 110); rect.sizeDelta = new Vector2(1200, 90); puzzle.Controls = label;
+            ResearchInspectionBuilder.Clean(scene);
             EditorSceneManager.SaveScene(scene, Path);
             var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes); scenes.RemoveAll(s => s.path == Path); scenes.Add(new EditorBuildSettingsScene(Path, true)); EditorBuildSettings.scenes = scenes.ToArray();
             AssetDatabase.SaveAssets(); Debug.Log("ECHO Level03: three chambers, isolated gallery and three-fragment echo.");

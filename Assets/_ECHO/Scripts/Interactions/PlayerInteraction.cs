@@ -24,7 +24,7 @@ namespace EchoGame
             if (Time.unscaledTime < nextCheck) return;
             nextCheck = Time.unscaledTime + .1f;
             IInteractable next = null;
-            if (Game.State == GameState.Playing)
+            if (Game.State == GameState.Playing && !Game.Cycles.Player.Immobilized)
                 next = InteractionAccess.Trace(View.transform.position, View.transform.forward, Range, Mask);
             if (next != null && !next.CanInteract) next = null;
             if (ReferenceEquals(next, target)) return;
@@ -32,7 +32,7 @@ namespace EchoGame
         }
         public void TryInteract()
         {
-            if (Game.State != GameState.Playing) return;
+            if (Game.State != GameState.Playing || Game.Cycles.Player.Immobilized) return;
             target = InteractionAccess.Trace(View.transform.position, View.transform.forward, Range, Mask);
             if (target == null || !target.CanInteract) return;
             string prompt = target.Prompt; target.Interact(); InteractionPerformed?.Invoke(prompt);

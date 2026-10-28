@@ -46,6 +46,14 @@ namespace EchoGame.Tests
             yield return null; yield return null;
         }
         void Press(int i) => c.Game.Interaction.TryInteract();
+        [UnityTest] public IEnumerator FallReturnsToSameModeAndPreservesFragments()
+        {
+            var saved=new EchoRecording(new List<EchoFrame>{new EchoFrame(.7f,Vector3.zero,0,0),new EchoFrame(2,Vector3.right,0,0)});c.Echoes.Add(saved);
+            int cycle=c.CycleNumber;var marker=new GameObject("Fall test");marker.transform.position=new Vector3(0,c.FallResetHeight-1,2);c.Player.Teleport(marker.transform);
+            yield return Step;yield return Step;Assert.That(c.Game.State,Is.EqualTo(GameState.Research));Assert.That(c.Elapsed,Is.Zero);Assert.That(c.CycleNumber,Is.EqualTo(cycle));Assert.That(c.Player.Feet.y,Is.GreaterThan(c.FallResetHeight));
+            p.StartCycle();cycle=c.CycleNumber;c.Player.Teleport(marker.transform);yield return Step;yield return Step;
+            Assert.That(c.Game.State,Is.EqualTo(GameState.Playing));Assert.That(c.CycleNumber,Is.EqualTo(cycle+1));Assert.That(c.Echoes.Echoes[0].Recording,Is.SameAs(saved));Object.Destroy(marker);
+        }
         IEnumerator Record(int index,float start,float press,float end)
         {
             yield return Gallery(index); yield return Aim(p.Buttons[index].transform.position);
