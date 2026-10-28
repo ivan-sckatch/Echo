@@ -35,6 +35,7 @@ namespace EchoGame.UI
     }
     public sealed class EchoUIData
     {
+        public IReadOnlyList<Vector2> Windows;
         public int Id;
         public float Start, End;
         public EchoState State;

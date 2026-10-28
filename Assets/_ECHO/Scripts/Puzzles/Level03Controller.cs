@@ -8,6 +8,7 @@ namespace EchoGame
         public TimeCycleManager Cycles;
         public PulseButton[] Buttons;
         public TimedDoor[] Doors;
+        public ChamberIsolation[] Chambers;
         public TMPro.TMP_Text Controls;
         public bool IsResearch => researchSuspended;
         bool researchSuspended, taught;
@@ -32,15 +33,16 @@ namespace EchoGame
         }
         public void EnterResearch()
         {
-            Cycles.Restart(true); researchSuspended = true; Cycles.Game.SetState(GameState.Research);
+            Cycles.Restart(false, false); researchSuspended = true; Cycles.Game.SetState(GameState.Research);
             Cycles.Notify("ИССЛЕДОВАНИЕ · Enter — начать цикл. ПКМ — анализ объектов. Механизмы отключены.");
         }
-        public void StartCycle() { researchSuspended = false; Cycles.Restart(true); }
+        public void StartCycle() { researchSuspended = false; Cycles.Restart(false); }
         public void ResetMechanisms()
         {
             researchSuspended = false; if (scanVisual) scanVisual.Hide();
             CurrentRejection = null; foreach (var d in Doors) d.ResetDoor(); foreach (var b in Buttons) b.ResetButton();
-            if (!taught) { taught = true; Cycles.Notify("R — начать запись. Во время записи: R — завершить и сохранить. Дверь открывается на 6 секунд."); }
+            if (Chambers != null) foreach (var chamber in Chambers) chamber.ResetChamber();
+            if (!taught) { taught = true; Cycles.Notify("F — кнопка. R — начать запись, повторное R — сохранить фрагмент. Tab — временная шкала."); }
         }
         public void Reject(string reason, float start, float end, int id)
         { CurrentRejection = new RecordingRejection { Reason = reason, Start = start, End = end, RecordingId = id }; Cycles.Notify(reason + $" · Эхо {id:00}: {start:0.0}–{end:0.0} с"); }
@@ -52,9 +54,9 @@ namespace EchoGame
             var access = Cycles.Game.Interaction;
             var origin = f.Position + Quaternion.Euler(0, f.Yaw, 0) * Cycles.Player.View.localPosition;
             if (!ReferenceEquals(InteractionAccess.Trace(origin, direction, access.Range, access.Mask), button)) return;
-            button.Press(action.Time); Cycles.MarkEchoUsed(echo.Id);
+            int before = button.PressCount; button.Press(action.Time); if (button.PressCount > before) Cycles.MarkEchoUsed(echo.Id);
         }
-        public void Tick(float dt) { Analyze(); foreach (var d in Doors) d.Tick(Cycles.Elapsed, dt, Cycles.Player.Feet); foreach (var b in Buttons) b.Refresh(Cycles.Elapsed); }
+        public void Tick(float dt) { Analyze(); foreach (var d in Doors) d.Tick(Cycles.Elapsed, dt, Cycles.Player.Feet); if (Chambers != null) foreach (var chamber in Chambers) chamber.Tick(dt); foreach (var b in Buttons) b.Refresh(Cycles.Elapsed); }
         public void ResearchTick(float dt)
         {
             RefreshControls();
@@ -72,17 +74,17 @@ namespace EchoGame
             if (scan.Enabled && Physics.Raycast(scan.Origin, scan.Direction, out var hit, scanner.Range, ~0, QueryTriggerInteraction.Ignore))
             {
                 end = hit.point; target = hit.collider.GetComponentInParent<PulseButton>();
-                if (target && target != lastAnalysis) Cycles.Notify($"АНАЛИЗ · {target.StableId}: импульсная кнопка, окно {target.Door.Window:0} с.");
+                if (target && target != lastAnalysis) Cycles.Notify($"АНАЛИЗ · {target.Door.DoorLabel}: " + (target.Door.LatchUntilReset ? "открытие до сброса" : $"окно {target.Door.Window:0} с") + ". Камера изолируется.");
             }
             lastAnalysis = target; scanVisual.Render(scan, end, target);
         }
         void RefreshControls()
         {
             if (!Controls) return;
-            Controls.text = IsResearch ? "ИССЛЕДОВАНИЕ · Enter — начать цикл · ПКМ — анализ" :
-                (Cycles.IsRecording ? "R — завершить и сохранить" : "R — начать запись") + " · F — кнопка · T — повтор\nTab — анализ · Del в анализе — удалить последнюю запись · Backspace — исследование (сброс)";
+            Controls.text = IsResearch ? "ИССЛЕДОВАНИЕ · Enter — начать цикл · ПКМ — анализ · Tab — фрагменты" :
+                (Cycles.IsRecording ? "R — завершить и сохранить" : "R — начать запись") + " · F — кнопка · T — повтор\nTab — анализ · Del в анализе — удалить последний фрагмент · Backspace — исследование";
         }
         public void DeleteLast()
-        { if (Cycles.Echoes.Echoes.Count > 0) { int id = Cycles.Echoes.Echoes[Cycles.Echoes.Echoes.Count - 1].Id; Cycles.Echoes.Remove(id); Cycles.Notify($"Эхо {id:00} удалено."); } }
+        { if (Cycles.Echoes.Echoes.Count > 0) { Cycles.Echoes.RemoveLastFragment(); Cycles.Notify("Последний фрагмент удалён."); } }
     }
 }

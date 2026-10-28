@@ -77,7 +77,8 @@ namespace EchoGame.UI
                 if (echo.Recording == null) continue;
                 if (!intervals.TryGetValue(echo.Recording, out var actions))
                 { actions = BuildIntervals(echo.Recording); intervals.Add(echo.Recording, actions); }
-                list.Add(new EchoUIData { Id = echo.Id, Start = echo.Recording.Frames[0].Time, End = echo.Recording.Duration,
+                var windows = new List<Vector2>(); foreach (var fragment in echo.Recording.Fragments) windows.Add(new Vector2(fragment.StartTime, fragment.EndTime));
+                list.Add(new EchoUIData { Windows = windows, Id = echo.Id, Start = echo.Recording.Frames[0].Time, End = echo.Recording.Duration,
                     State = (EchoState)echo.State, Intervals = actions });
             }
             Current = new UISnapshot {
@@ -107,6 +108,10 @@ namespace EchoGame.UI
         }
         public static IReadOnlyList<ActionInterval> BuildIntervals(EchoRecording recording)
         {
+            if (recording.Fragments.Count > 1)
+            {
+                var parts = new List<ActionInterval>(); foreach (var fragment in recording.Fragments) parts.AddRange(BuildIntervals(fragment)); return parts;
+            }
             // Derive real movement/hold intervals from recorded world positions; no fabricated actions.
             var result = new List<ActionInterval>(); var frames = recording.Frames;
             if (frames.Count < 2) return result;

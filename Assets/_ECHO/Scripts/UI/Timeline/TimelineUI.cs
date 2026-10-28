@@ -23,7 +23,7 @@ namespace EchoGame.UI
         void Update() { if (Conflict && Conflict.gameObject.activeSelf && Time.unscaledTime >= conflictUntil) Conflict.gameObject.SetActive(false); }
         public void Apply(UISnapshot data)
         {
-            string next = data.Duration.ToString("R"); foreach (var e in data.Echoes) next += "/" + e.Id;
+            string next = data.Duration.ToString("R"); foreach (var e in data.Echoes) { next += "/" + e.Id + "/" + e.Start + "/" + e.End + "/" + e.Intervals.Count; if (e.Windows != null) foreach (var w in e.Windows) next += "/" + w.x.ToString("R") + "/" + w.y.ToString("R"); }
             if (next != signature)
             {
                 foreach (var track in tracks.Values) Destroy(track.gameObject); tracks.Clear();
@@ -38,7 +38,7 @@ namespace EchoGame.UI
                 player.Bind(0, "ИГРОК", new[] { new ActionInterval(data.RecordStart, data.Time, "Запись", true) }, Mathf.Max(1, data.Duration), UITheme.Amber);
                 signature = next; Marker.SetAsLastSibling();
             }
-            foreach (var e in data.Echoes) { tracks[e.Id].SetState(e.State); tracks[e.Id].Label.text = $"ЭХО {e.Id:00}  {e.Start:0.#}–{e.End:0.#}с"; }
+            foreach (var e in data.Echoes) { tracks[e.Id].SetState(e.State); tracks[e.Id].Label.text = $"ЭХО {e.Id:00}  {e.Start:0.#}–{e.End:0.#}с" + (e.Windows != null && e.Windows.Count > 1 ? $" · {e.Windows.Count} фр." : ""); }
             player.State.text = data.Recording == RecordingState.Recording ? "● ЗАПИСЬ" : data.Echoes.Count == 0 ? "НЕТ ЗАПИСЕЙ" : "ОЖИДАНИЕ";
             player.SetPlayer(data.RecordStart, data.RecordEnd, Mathf.Max(1, data.Duration));
             var scroll = Content.GetComponentInParent<ScrollRect>();
@@ -54,7 +54,7 @@ namespace EchoGame.UI
             bool research = data.IsResearch;
             Clock.text = research ? "—" : UITheme.Clock(data.Time); Duration.text = research ? "—" : UITheme.Clock(data.Duration);
             if (Summary) Summary.text = $"Сохранено: {data.Echoes.Count} · {data.LimitLabel}" + (research ? " · ИССЛЕДОВАНИЕ" : "");
-            if (Summary && data.LimitModel == EchoLimitModel.ConcurrentEchoLimit) Summary.text += " · Del — удалить последнюю запись";
+            if (Summary && data.LimitModel == EchoLimitModel.ConcurrentEchoLimit) Summary.text += " · Del — удалить последний фрагмент";
             if (data.Rejection != null && rejection != data.Rejection) { rejection = data.Rejection; conflictUntil = Time.unscaledTime + 3; }
             bool conflict = rejection != null && rejection.Start.HasValue && rejection.End.HasValue && rejection.End > rejection.Start && Time.unscaledTime < conflictUntil;
             if (Conflict)

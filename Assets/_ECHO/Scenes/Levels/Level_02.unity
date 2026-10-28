@@ -1296,7 +1296,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4293319511
   m_fontColor: {r: 0.34117648, g: 0.85882354, b: 0.9019608, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -1309,7 +1309,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1932,7 +1932,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4293319511
   m_fontColor: {r: 0.34117648, g: 0.85882354, b: 0.9019608, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -1945,7 +1945,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -2107,7 +2107,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -2927,7 +2927,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294309354
   m_fontColor: {r: 0.91764706, g: 0.9607843, b: 0.9607843, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -2940,7 +2940,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -4259,7 +4259,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4293319511
   m_fontColor: {r: 0.34117648, g: 0.85882354, b: 0.9019608, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -4272,7 +4272,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -4928,7 +4928,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "ECHO / 02\n\u0421\u041A\u0420\u042B\u0422\u042B\u0419 \u0421\u0418\u0413\u041D\u0410\u041B\n\u041F\u041A\u041C \u2014 \u0421\u041A\u0410\u041D\u0415\u0420"
+  m_text: "ECHO / 02\n\u0421\u041A\u0420\u042B\u0422\u042B\u0419 \u0421\u0418\u0413\u041D\u0410\u041B\n\u041D\u0410\u0416\u041C\u0418\u0422\u0415 \u041F\u041A\u041C \u0427\u0422\u041E\u0411\u042B\n\u0417\u0410\u0414\u0415\u0419\u0421\u0422\u0412\u041E\u0412\u0410\u0422\u042C \u0421\u041A\u0410\u041D\u0415\u0420"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7d02c57f48f1c7547adf1fc34fbed25c, type: 2}
   m_sharedMaterial: {fileID: -3656027931268185460, guid: 7d02c57f48f1c7547adf1fc34fbed25c, type: 2}
@@ -4937,7 +4937,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294309354
   m_fontColor: {r: 0.91764706, g: 0.9607843, b: 0.9607843, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -4950,7 +4950,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -5391,6 +5391,10 @@ PrefabInstance:
       propertyPath: DataProvider
       value: 
       objectReference: {fileID: 1939859922}
+    - target: {fileID: 3987185819799752686, guid: 59f2ab487f091d244a247988e224667c, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 4012412225464452786, guid: 59f2ab487f091d244a247988e224667c, type: 3}
       propertyPath: m_Name
       value: EchoUI
@@ -5436,6 +5440,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Echo.Runtime::EchoGame.EchoManager
   MaximumEchoes: 1
   Container: {fileID: 241741922}
+  ConcurrentIntervals: 0
   Prefab: {fileID: 7963346260046985850, guid: 88b3499ee216a9345b8f785295148789, type: 3}
 --- !u!4 &1489859305
 Transform:
@@ -5971,6 +5976,7 @@ MonoBehaviour:
   NextLevelScene: 
   Exit: {fileID: 2005922007}
   UI: {fileID: 1939859921}
+  TimedPuzzle: {fileID: 0}
   AutoStartRecording: 1
 --- !u!4 &1767495048
 Transform:

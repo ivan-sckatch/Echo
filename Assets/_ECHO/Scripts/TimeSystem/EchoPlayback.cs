@@ -27,7 +27,7 @@ namespace EchoGame
         {
             State = float.IsNaN(time) || float.IsInfinity(time) ? EchoPlaybackState.SyncError :
                 Recording == null || time < Recording.Frames[0].Time ? EchoPlaybackState.Waiting :
-                time >= Recording.Duration ? EchoPlaybackState.Completed : EchoPlaybackState.Playback;
+                time >= Recording.Duration ? EchoPlaybackState.Completed : Recording.IsActiveAt(time) ? EchoPlaybackState.Playback : EchoPlaybackState.Waiting;
             IsActive = State == EchoPlaybackState.Playback;
             Body.gameObject.SetActive(IsActive);
             if (!IsActive) { CurrentFrame = default; return; }

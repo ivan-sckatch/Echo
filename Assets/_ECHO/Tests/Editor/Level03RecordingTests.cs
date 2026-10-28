@@ -10,13 +10,23 @@ namespace EchoGame.Tests
             var one = System.IO.File.ReadAllBytes("Assets/_ECHO/Scenes/Levels/Level_01.unity");
             var two = System.IO.File.ReadAllBytes("Assets/_ECHO/Scenes/Levels/Level_02.unity");
             EchoGame.Editor.Level03Builder.BuildScene(false); EchoGame.Editor.Level03Builder.BuildScene(false);
-            Assert.That(Object.FindObjectsByType<PulseButton>(FindObjectsSortMode.None).Length, Is.EqualTo(2));
-            Assert.That(Object.FindObjectsByType<TimedDoor>(FindObjectsSortMode.None).Length, Is.EqualTo(2));
+            Assert.That(Object.FindObjectsByType<PulseButton>(FindObjectsSortMode.None).Length, Is.EqualTo(3));
+            Assert.That(Object.FindObjectsByType<TimedDoor>(FindObjectsSortMode.None).Length, Is.EqualTo(3));
             Assert.That(Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None).Length, Is.EqualTo(1));
             Assert.That(System.IO.File.ReadAllBytes("Assets/_ECHO/Scenes/Levels/Level_01.unity"), Is.EqualTo(one));
             Assert.That(System.IO.File.ReadAllBytes("Assets/_ECHO/Scenes/Levels/Level_02.unity"), Is.EqualTo(two));
         }
         static EchoRecording Clip(float start, float end) => new EchoRecording(new List<EchoFrame> { new EchoFrame(start, Vector3.zero, 0, 0), new EchoFrame(end, Vector3.zero, 0, 0) });
+        [Test] public void CompositeKeepsHalfOpenGapsAndActions()
+        {
+            var a = new EchoRecording(new List<EchoFrame> { new EchoFrame(3, Vector3.left,0,0),new EchoFrame(5,Vector3.left,0,0) },new List<RecordedInteraction>{new RecordedInteraction(4,"A")});
+            var b = new EchoRecording(new List<EchoFrame> { new EchoFrame(11,Vector3.right,0,0),new EchoFrame(13,Vector3.right,0,0) },new List<RecordedInteraction>{new RecordedInteraction(12,"B")});
+            var combined = EchoRecording.Combine(new[]{b,a});
+            Assert.That(combined.Fragments.Count,Is.EqualTo(2)); Assert.That(combined.Actions.Count,Is.EqualTo(2));
+            Assert.That(combined.IsActiveAt(3),Is.True); Assert.That(combined.IsActiveAt(5),Is.False); Assert.That(combined.IsActiveAt(10),Is.False); Assert.That(combined.IsActiveAt(11),Is.True); Assert.That(combined.IsActiveAt(13),Is.False);
+            Assert.That(combined.Sample(11).Position,Is.EqualTo(Vector3.right)); Assert.That(a.Actions.Count,Is.EqualTo(1));
+            Assert.Throws<System.ArgumentException>(()=>EchoRecording.Combine(new[]{a,Clip(4,6)}));
+        }
         [Test] public void LateStationaryPressIsMeaningfulAndHalfOpen()
         {
             var r = new EchoRecording(new List<EchoFrame> { new EchoFrame(10, Vector3.one, 20, 0), new EchoFrame(13, Vector3.one, 20, 0) },

@@ -271,7 +271,7 @@ namespace EchoGame.Tests
             var sampled = new HashSet<Color32>();
             for (int x = 20; x < texture.width; x += 37) for (int y = 20; y < texture.height; y += 37) sampled.Add(image.GetPixel(x, y));
             Assert.That(sampled.Count, Is.GreaterThan(4), "UI capture must contain rendered content, not a blank camera background");
-            Directory.CreateDirectory("Logs/CompactUI/Captures"); File.WriteAllBytes("Logs/CompactUI/Captures/" + name + ".png", image.EncodeToPNG());
+            Directory.CreateDirectory("C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-10-28-Level03/Captures"); File.WriteAllBytes("C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-10-28-Level03/Captures/" + name + ".png", image.EncodeToPNG());
             Object.Destroy(image); RenderTexture.active = previous;
         }
         public static IEnumerator CaptureShell(UIManager shell, string name)

@@ -76,7 +76,9 @@ namespace EchoGame
                     if (conflict)
                     {
                         IsRecording = false; HasFinishedRecording = false; RecordingEnd = Elapsed;
-                        TimedPuzzle.Reject("Запись отклонена: пересечение интервалов", Mathf.Max(recording.StartTime, conflict.Recording.StartTime), Mathf.Min(recording.EndTime, conflict.Recording.EndTime), conflict.Id);
+                        foreach (var saved in conflict.Recording.Fragments)
+                            if (recording.StartTime < saved.EndTime && saved.StartTime < recording.EndTime)
+                            { TimedPuzzle.Reject("Запись отклонена: пересечение интервалов", Mathf.Max(recording.StartTime, saved.StartTime), Mathf.Min(recording.EndTime, saved.EndTime), conflict.Id); break; }
                         RecordingChanged?.Invoke(); return;
                     }
                 }
@@ -96,7 +98,7 @@ namespace EchoGame
             if (IsRecording) SaveAndRestart();
             else { RecordingStart = Elapsed; RecordingEnd = Elapsed; HasFinishedRecording = false; IsRecording = true; recordedMechanism = Puzzle && Puzzle.Plate.Contains(Player.Feet); Recorder.Begin(Player.Capture(Elapsed)); RecordingChanged?.Invoke(); }
         }
-        public void Restart(bool full)
+        public void Restart(bool full, bool countCycle = true)
         {
             if (Game.State == GameState.ResettingCycle) return;
             Game.SetState(GameState.ResettingCycle);
@@ -106,7 +108,7 @@ namespace EchoGame
             if (PhasePuzzle) PhasePuzzle.ResetMechanisms();
             if (TimedPuzzle) TimedPuzzle.ResetMechanisms();
             if (Puzzle) Puzzle.ResetMechanisms();
-            Elapsed = 0; CycleNumber++; Attempts++;
+            Elapsed = 0; if (countCycle) { CycleNumber++; Attempts++; }
             Echoes.Evaluate(0);
             foreach (var echo in Echoes.Echoes) echo.ResetEvents();
             Physics.SyncTransforms();

@@ -40,14 +40,14 @@ namespace EchoGame.Editor
         [MenuItem("Tools/ECHO/Validate/Level 03 Windows Player tests")]
         public static void PlayerTests()
         {
-            Directory.CreateDirectory("Assets/_ECHO/Tests/Results"); SessionState.SetString("EchoTestReport", "WindowsPlayMode");
+            Directory.CreateDirectory(Level03Builder.Reports); SessionState.SetString("EchoTestReport", "WindowsPlayMode");
             // This package exposes the public legacy platform on Filter and forwards it to ExecutionSettings.
             runner.Execute(new ExecutionSettings(new Filter { testMode = TestMode.PlayMode, assemblyNames = new[] { "Echo.PlayTests" },
                 groupNames = new[] { "^EchoGame.Tests.Level03Tests" }, targetPlatform = BuildTarget.StandaloneWindows64 }) { playerHeartbeatTimeout = 180 });
         }
         static void Run(TestMode mode, string assembly, string report)
         {
-            Directory.CreateDirectory("Assets/_ECHO/Tests/Results");
+            Directory.CreateDirectory(Level03Builder.Reports);
             SessionState.SetString("EchoTestReport", report);
             runner.Execute(new ExecutionSettings(new Filter { testMode = mode, assemblyNames = new[] { assembly } }));
         }
@@ -58,7 +58,7 @@ namespace EchoGame.Editor
             public void TestFinished(ITestResultAdaptor result) { }
             public void RunFinished(ITestResultAdaptor result)
             {
-                string path = "Assets/_ECHO/Tests/Results/" + SessionState.GetString("EchoTestReport", "Tests") + ".xml";
+                string path = Level03Builder.Reports + "/" + SessionState.GetString("EchoTestReport", "Tests") + ".xml";
                 TestRunnerApi.SaveResultToFile(result, path);
                 Debug.Log($"ECHO tests: {result.PassCount} passed, {result.FailCount} failed. {path}");
             }

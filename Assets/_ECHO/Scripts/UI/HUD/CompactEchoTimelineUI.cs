@@ -15,6 +15,7 @@ namespace EchoGame.UI
         public int SegmentCount => bars.Count;
         readonly List<Image> lanes = new List<Image>();
         readonly Dictionary<int, Image> bars = new Dictionary<int, Image>();
+        readonly Dictionary<int, List<Image>> fragmentBars = new Dictionary<int, List<Image>>();
         List<EchoLaneLayout.Placement> layout = new List<EchoLaneLayout.Placement>();
         string signature;
         RecordingRejection rejection;
@@ -29,6 +30,7 @@ namespace EchoGame.UI
         {
             var key = new StringBuilder();
             foreach (var e in data.Echoes) key.Append(e.Id).Append('/').Append(e.Start.ToString("R")).Append('/').Append(e.End.ToString("R")).Append(';');
+            foreach (var e in data.Echoes) if (e.Windows != null) foreach (var w in e.Windows) key.Append(w.x.ToString("R")).Append(':').Append(w.y.ToString("R")).Append(';');
             string next = key.ToString();
             if (signature != next)
             {
@@ -38,7 +40,7 @@ namespace EchoGame.UI
                 foreach (var p in layout) { LaneCount = Mathf.Max(LaneCount, p.Lane + 1); live.Add(p.Echo.Id); }
                 var removed = new List<int>();
                 foreach (var id in bars.Keys) if (!live.Contains(id)) removed.Add(id);
-                foreach (var id in removed) { Destroy(bars[id].gameObject); bars.Remove(id); }
+                foreach (var id in removed) { Destroy(bars[id].gameObject); bars.Remove(id); fragmentBars.Remove(id); }
                 while (lanes.Count < LaneCount) lanes.Add(Instantiate(SegmentPrefab, transform));
                 for (int i = 0; i < lanes.Count; i++)
                 {
@@ -57,6 +59,24 @@ namespace EchoGame.UI
                         label.rectTransform.offsetMin = new Vector2(0, -3); label.rectTransform.offsetMax = new Vector2(0, 3);
                         bars.Add(p.Echo.Id, bar);
                     }
+                foreach (var p in layout)
+                {
+                    if (fragmentBars.TryGetValue(p.Echo.Id, out var oldParts)) foreach (var part in oldParts) Destroy(part.gameObject);
+                    var parts = new List<Image>(); fragmentBars[p.Echo.Id] = parts;
+                    var windows = p.Echo.Windows;
+                    var label = bars[p.Echo.Id].GetComponentInChildren<TMP_Text>();
+                    label.rectTransform.anchorMax = Vector2.one;
+                    if (windows == null || windows.Count < 2) continue;
+                    float span = Mathf.Max(.001f, p.Echo.End - p.Echo.Start);
+                    foreach (var window in windows)
+                    {
+                        var part = Instantiate(SegmentPrefab, bars[p.Echo.Id].transform); part.name = "Fragment window";
+                        part.rectTransform.anchorMin = new Vector2((window.x - p.Echo.Start) / span, 0);
+                        part.rectTransform.anchorMax = new Vector2((window.y - p.Echo.Start) / span, 1);
+                        part.rectTransform.offsetMin = part.rectTransform.offsetMax = Vector2.zero; parts.Add(part);
+                    }
+                    label.rectTransform.anchorMax = new Vector2((windows[0].y - p.Echo.Start) / span, 1); label.transform.SetAsLastSibling();
+                }
             }
             ((RectTransform)transform).sizeDelta = new Vector2(680, 8 + LaneCount * 16);
             float duration = Mathf.Max(.001f, data.Duration);
@@ -71,7 +91,12 @@ namespace EchoGame.UI
                 Position(bar.rectTransform, Mathf.Clamp01(p.Echo.Start / duration), Mathf.Clamp01(p.Echo.End / duration), 14 + p.Lane * 16, 10);
                 Color color = echo.State == EchoState.SyncError ? UITheme.Error : echo.Id % 2 == 0 ? UITheme.Secondary : UITheme.Cyan;
                 color.a = echo.State == EchoState.Completed ? .4f : echo.State == EchoState.Waiting ? .65f : 1;
-                bar.color = color;
+                var parts = fragmentBars[p.Echo.Id]; bar.color = parts.Count > 0 ? Color.clear : color;
+                for (int i = 0; i < parts.Count; i++)
+                {
+                    var window = echo.Windows[i]; var partColor = color;
+                    partColor.a = data.Time >= window.y ? .4f : data.Time < window.x ? .65f : 1; parts[i].color = partColor;
+                }
             }
             if (data.Rejection != null && data.Rejection != rejection)
             { rejection = data.Rejection; conflictUntil = Time.unscaledTime + 3; }

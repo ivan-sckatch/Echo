@@ -21,7 +21,7 @@ namespace EchoGame
             if (Cycles.TimedPuzzle)
             {
                 if (State == GameState.Research && k.enterKey.wasPressedThisFrame) { Cycles.TimedPuzzle.StartCycle(); return; }
-                if (State == GameState.Playing && k.backspaceKey.wasPressedThisFrame) { Cycles.TimedPuzzle.EnterResearch(); return; }
+                if ((State == GameState.Playing || State == GameState.LevelCompleted) && k.backspaceKey.wasPressedThisFrame) { Cycles.TimedPuzzle.EnterResearch(); return; }
                 if (State == GameState.Timeline && k.deleteKey.wasPressedThisFrame) { Cycles.TimedPuzzle.DeleteLast(); return; }
                 if (State == GameState.Research) Cycles.Player.Look();
             }

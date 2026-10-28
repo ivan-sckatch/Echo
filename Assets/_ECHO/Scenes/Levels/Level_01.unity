@@ -322,7 +322,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 220864168}
-  m_Text: "\u041F\u041B\u0410\u0422\u0424\u041E\u0420\u041C\u0410\nR \u2014 \u0421\u041E\u0417\u0414\u0410\u0422\u042C \u042D\u0425\u041E"
+  m_Text: "\u041D\u0410\u0416\u041C\u0418 \"R\" \n\u0427\u0422\u041E\u0411\u0424\u042B \u0421\u041E\u0417\u0414\u0410\u0422\u042C \u042D\u0425\u041E"
   m_OffsetZ: 0
   m_CharacterSize: 0.1
   m_LineSpacing: 1
@@ -3337,6 +3337,7 @@ MonoBehaviour:
   NextLevelScene: 
   Exit: {fileID: 2076659007}
   UI: {fileID: 262456577}
+  TimedPuzzle: {fileID: 0}
   AutoStartRecording: 1
 --- !u!4 &1725071587
 Transform:
@@ -4289,6 +4290,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Echo.Runtime::EchoGame.EchoManager
   MaximumEchoes: 3
   Container: {fileID: 818858470}
+  ConcurrentIntervals: 0
   Prefab: {fileID: 7963346260046985850, guid: 88b3499ee216a9345b8f785295148789, type: 3}
 --- !u!4 &2015813565
 Transform:
@@ -4407,7 +4409,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.03999996}
-  m_LocalScale: {x: 5.2, y: 1.6, z: 0.06}
+  m_LocalScale: {x: 5.9, y: 1.6, z: 0.06}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1169259977}
