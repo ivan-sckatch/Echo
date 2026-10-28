@@ -26,6 +26,7 @@ namespace EchoGame.Editor
             else if (command == "level02") Level02Builder.Build();
             else if (command == "level03") Level03Builder.Build();
             else if (command == "level03batch") Level03Builder.BuildBatch();
+            else if (command == "hint-preview") Level03Builder.PreviewFragmentHint();
             else if (command == "windows") Level03Builder.BuildPlayer();
             else if (command == "player-tests") PlayerTests();
             else if (command == "ui") EchoUIBuilder.BuildAll();

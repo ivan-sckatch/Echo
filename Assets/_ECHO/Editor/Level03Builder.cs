@@ -88,6 +88,7 @@ namespace EchoGame.Editor
             Sign("Exit", env, new Vector3(2, 2, 43.8f), "ВЫХОД", new Vector2(3, 1), 4, UITheme.Cyan, backing);
             Sign("Start map", start, new Vector3(-4.5f, 2.2f, .25f), "ECHO / 03 · ПОЙМАЙ МОМЕНТ\nГАЛЕРЕЯ — КАМЕРЫ A / B / C\nОСНОВНОЙ КОРИДОР — D1 / D2 / D3", new Vector2(7, 1.7f), 2.5f, UITheme.Text, backing, 180);
             Sign("Gallery direction", start, new Vector3(-8.5f, 2.6f, 5.7f), "ТЕХНИЧЕСКАЯ ГАЛЕРЕЯ\nA → B → C", new Vector2(5, 1.2f), 2.5f, UITheme.Cyan, backing);
+            FragmentHint(start, backing);
             RenderSettings.ambientMode = AmbientMode.Flat; RenderSettings.ambientLight = new Color(.6f, .64f, .69f);
             for (int i = 0; i < 5; i++) foreach (float x in new[] { -10.5f, -4.5f, 2f }) { var l = Node("Ceiling light", env).AddComponent<Light>(); l.type = LightType.Point; l.range = 11; l.intensity = 2; l.transform.position = new Vector3(x, 4, 4 + i * 8); }
             c.UI = EchoUIBuilder.Install(game, c); c.UI.GetComponent<UIEventBridge>().ContextSource = puzzle;
@@ -99,6 +100,31 @@ namespace EchoGame.Editor
             AssetDatabase.SaveAssets(); Debug.Log("ECHO Level03: three chambers, isolated gallery and three-fragment echo.");
         }
         static void WallZ(GameObject root, float x, float a, float b, Material mat) { Cube("Route wall", root, new Vector3(x, 2.25f, (a+b)/2), new Vector3(.25f, 4.5f, b-a), mat); }
+        static void FragmentHint(GameObject parent, Material backing)
+        {
+            Sign("Echo fragment hint", parent, new Vector3(-11.8f, 2.1f, 3),
+                "<b>ЭХО МОЖНО ДРОБИТЬ</b>\n<size=70%>Записывай отдельные фрагменты\nв разных циклах — они дополняют одно Эхо.</size>",
+                new Vector2(4.6f, 1.35f), 2.8f, UITheme.Text, backing, -90);
+        }
+        public static void PreviewFragmentHint()
+        {
+            if (EditorApplication.isPlaying) throw new System.InvalidOperationException("Stop play mode before refreshing the scene.");
+            EditorSceneManager.OpenScene(Path);
+            var hint = GameObject.Find("Level_03/Environment/StartingArea/Echo fragment hint");
+            if (!hint) throw new System.InvalidOperationException("Missing fragment hint in saved scene.");
+            foreach (var text in hint.GetComponentsInChildren<TMP_Text>()) text.ForceMeshUpdate();
+            var camera = Camera.main; var position = camera.transform.position; var rotation = camera.transform.rotation;
+            var target = new RenderTexture(1280, 720, 24); var previous = RenderTexture.active;
+            try
+            {
+                camera.transform.SetPositionAndRotation(new Vector3(-7, 1.67f, 3), Quaternion.Euler(0, -90, 0));
+                camera.targetTexture = target; camera.Render(); RenderTexture.active = target;
+                var image = new Texture2D(1280, 720, TextureFormat.RGB24, false); image.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); image.Apply();
+                System.IO.File.WriteAllBytes(Reports + "/Captures/L03_FragmentHint.png", image.EncodeToPNG()); Object.DestroyImmediate(image);
+            }
+            finally { camera.targetTexture = null; RenderTexture.active = previous; camera.transform.SetPositionAndRotation(position, rotation); Object.DestroyImmediate(target); }
+            Debug.Log("ECHO: saved scene reloaded; fragment hint camera preview captured.");
+        }
         static DoorController MakeDoor(string name, GameObject root, Vector3 position, float yaw, Material red, Material green)
         {
             var door = Door(name, root, 0, red, green); door.transform.SetPositionAndRotation(position, Quaternion.Euler(0, yaw, 0)); return door;
