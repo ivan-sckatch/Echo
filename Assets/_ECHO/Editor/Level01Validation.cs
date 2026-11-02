@@ -2,8 +2,18 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.TestTools.TestRunner.Api;
 using UnityEngine;
+[assembly: UnityEditor.TestTools.TestPlayerBuildModifier(typeof(EchoGame.Editor.Level01ArtCleanBuild))]
 namespace EchoGame.Editor
 {
+    // Rebuild serialized URP runtime resources rather than reusing an incremental test-player cache.
+    public sealed class Level01ArtCleanBuild : UnityEditor.TestTools.ITestPlayerBuildModifier
+    {
+        public BuildPlayerOptions ModifyOptions(BuildPlayerOptions options)
+        {
+            if (SessionState.GetString("EchoTestReport", "") == "Level01ArtWindows") options.options |= BuildOptions.CleanBuildCache;
+            return options;
+        }
+    }
     // Small local test harness: menu commands also work in an already open Editor.
     [InitializeOnLoad]
     public static class Level01Validation
@@ -22,7 +32,16 @@ namespace EchoGame.Editor
             string command;
             try { command = File.ReadAllText(Request).Trim(); File.Delete(Request); }
             catch (IOException) { return; } // A request may still be being written by a local tool.
-            if (command == "build") Level01Builder.Build();
+            if (command == "art01") Level01ArtBuilder.Apply();
+            else if (command == "capture01") Level01ArtBuilder.Capture();
+            else if (command == "testart01") Run(TestMode.PlayMode, "Echo.PlayTests", "Level01ArtPlayMode", "^EchoGame.Tests.Level01");
+            else if (command == "playerart01")
+            {
+                SessionState.SetString("EchoTestReport", "Level01ArtWindows");
+                runner.Execute(new ExecutionSettings(new Filter { testMode = TestMode.PlayMode, assemblyNames = new[] { "Echo.PlayTests" },
+                    groupNames = new[] { "^EchoGame.Tests.Level01" }, targetPlatform = BuildTarget.StandaloneWindows64 }) { playerHeartbeatTimeout = 180 });
+            }
+            else if (command == "build") Level01Builder.Build();
             else if (command == "level02") Level02Builder.Build();
             else if (command == "level03") Level03Builder.Build();
             else if (command == "level03batch") Level03Builder.BuildBatch();
@@ -86,7 +105,7 @@ namespace EchoGame.Editor
             public void RunFinished(ITestResultAdaptor result)
             {
                 string name = SessionState.GetString("EchoTestReport", "Tests");
-                string directory = name.StartsWith("Level04") ? Level04Builder.Reports : Level03Builder.Reports;
+                string directory = name.StartsWith("Level01Art") ? Level01ArtBuilder.Reports : name.StartsWith("Level04") ? Level04Builder.Reports : Level03Builder.Reports;
                 Directory.CreateDirectory(directory);
                 string path = directory + "/" + name + ".xml";
                 TestRunnerApi.SaveResultToFile(result, path);

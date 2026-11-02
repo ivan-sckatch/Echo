@@ -114,6 +114,7 @@ namespace EchoGame.Editor
             buildScenes.Insert(menuIndex >= 0 ? 1 : 0, new EditorBuildSettingsScene(ScenePath, true));
             EditorBuildSettings.scenes = buildScenes.ToArray();
             AssetDatabase.SaveAssets();
+            Level01ArtBuilder.Apply();
             Debug.Log("ECHO: Level 01 generated and saved: " + ScenePath);
         }
         static GameObject Node(string name, GameObject parent = null)

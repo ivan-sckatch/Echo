@@ -72,14 +72,14 @@ namespace EchoGame.Tests
             {
                 yield return Walk(new Vector3(2, 0, 3));
                 c.SaveAndRestart(); Time.timeScale = 8;
-                Assert.That(c.Echoes.Echoes.Count, Is.EqualTo(Mathf.Min(i + 1, 3)));
+                Assert.That(c.Echoes.Echoes.Count, Is.EqualTo(1));
                 c.Restart(false); Time.timeScale = 8;
                 Assert.That(c.Elapsed, Is.Zero);
-                Assert.That(c.Echoes.Echoes.Count, Is.EqualTo(Mathf.Min(i + 1, 3)));
+                Assert.That(c.Echoes.Echoes.Count, Is.EqualTo(1));
                 yield return Step;
             }
             var oldest = c.Echoes.Echoes[0];
-            Assert.That(c.Echoes.Echoes[1].Recording, Is.Not.SameAs(oldest.Recording));
+            Assert.That(c.Echoes.MaximumEchoes, Is.EqualTo(1));
             c.Game.SetState(GameState.Paused);
             float paused = c.Elapsed; Vector3 echoPosition = oldest.Feet;
             yield return null; yield return null;
@@ -102,16 +102,15 @@ namespace EchoGame.Tests
             Assert.That(c.CycleNumber, Is.EqualTo(3), "Each restart is a temporal cycle, not a failed attempt");
             Assert.That(c.Echoes.Echoes[0].Id, Is.EqualTo(1));
         }
-        [UnityTest] public IEnumerator AutoTimeoutAndOverlappingEchoes()
+        [UnityTest] public IEnumerator AutoTimeoutAndSingleEchoReplacement()
         {
             var record = new EchoRecording(new List<EchoFrame> { new EchoFrame(0, new Vector3(6, .1f, 9), 0, 0), new EchoFrame(2, new Vector3(6, .1f, 9), 0, 0) });
-            c.Echoes.Add(record); c.Echoes.Add(record);
+            c.Echoes.Add(record); var replaced = c.Echoes.Echoes[0]; c.Echoes.Add(record);
+            Assert.That(c.Echoes.Echoes.Count, Is.EqualTo(1));
+            Assert.That(c.Echoes.Echoes[0], Is.Not.SameAs(replaced));
             yield return Step;
             Assert.That(c.Puzzle.Plate.IsActive, Is.True);
             c.Echoes.Echoes[0].Evaluate(2);
-            c.Puzzle.Plate.Evaluate(c.Player, c.Echoes);
-            Assert.That(c.Puzzle.Plate.IsActive, Is.True);
-            c.Echoes.Echoes[1].Evaluate(2);
             c.Puzzle.Plate.Evaluate(c.Player, c.Echoes);
             Assert.That(c.Puzzle.Plate.IsActive, Is.False);
             c.Restart(true); Time.timeScale = 8;
