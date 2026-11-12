@@ -7,6 +7,35 @@ namespace EchoGame
         public static bool Describe(Collider hit, TimeCycleManager cycles, out string title, out string action)
         {
             title = action = "";
+            if (cycles.GeometryPuzzle)
+            {
+                var terminal = hit.GetComponentInParent<GeometryTerminal>();
+                if (terminal)
+                {
+                    title = terminal.Label.ToUpperInvariant();
+                    action = terminal.Handle ? terminal.SequenceOrder>0 ? "Рычаг последовательной цепи. Состояние показывает рукоять и свет; отсчёт появляется после включения." :
+                        "Рычаг переключает питание механизма. По окончании отсчёта возвращается в исходное положение. Действие записывается Эхо." : $"F — подаёт сигнал на {terminal.Window:0} с. Действие записывается Эхо.";
+                    return true;
+                }
+                var mechanism = hit.GetComponentInParent<GeometryMechanism>();
+                if (mechanism)
+                {
+                    var level=cycles.GeometryPuzzle;
+                    title=mechanism==level.Middle[1] ? "ПОДВИЖНАЯ ПЕРЕГОРОДКА" :
+                        mechanism==level.Lower[2] || mechanism==level.Middle[2] || mechanism==level.Upper[2] ? "ПОДЪЁМНАЯ СЕКЦИЯ" : "ВЫДВИЖНОЙ МОСТ";
+                    action = "Меняет положение по сигналу. Контрольная точка фиксирует завершённое движение."; return true;
+                }
+                var plate = hit.GetComponentInParent<PressurePlate>();
+                if (plate) { title = "НАЖИМНАЯ ПЛАТФОРМА " + (plate==cycles.GeometryPuzzle.PlateA ? "A" : "B"); action = "Управляет мостом, пока на ней находится игрок или Эхо."; return true; }
+                var phase = hit.GetComponentInParent<PhaseNode>();
+                if (phase) { title = phase.DisplayName; action = $"ПКМ — активация {phase.ActivationSeconds:0.#} с. Подаёт сигнал на выходной шлюз."; return true; }
+                if (hit.GetComponentInParent<DoorController>()==cycles.GeometryPuzzle.ExitDoor)
+                { title="ВЫХОДНОЙ ШЛЮЗ";action="Открывается после активации финального фазового узла.";return true; }
+                var checkpoints=cycles.GeometryPuzzle.Checkpoints;
+                for(int i=0;i<checkpoints.CheckpointVisuals.Length;i++)
+                    if(hit.GetComponent<Renderer>()==checkpoints.CheckpointVisuals[i])
+                    { title="КОНТРОЛЬНАЯ ТОЧКА "+(i+1);action="Фиксирует завершённую геометрию секции и начинает новую временную петлю.";return true; }
+            }
             var button = hit.GetComponentInParent<PulseButton>();
             if (button)
             {

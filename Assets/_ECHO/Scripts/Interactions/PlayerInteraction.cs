@@ -38,6 +38,8 @@ namespace EchoGame
             string prompt = target.Prompt; target.Interact(); InteractionPerformed?.Invoke(prompt);
             if (target is PulseButton button && Game.Cycles.IsRecording)
             { Game.Cycles.Recorder.Capture(Game.Cycles.Player.Capture(Game.Cycles.Elapsed)); Game.Cycles.Recorder.RecordInteraction(new RecordedInteraction(Game.Cycles.Elapsed, button.StableId)); }
+            if (target is GeometryTerminal terminal && Game.Cycles.IsRecording)
+            { Game.Cycles.Recorder.Capture(Game.Cycles.Player.Capture(Game.Cycles.Elapsed)); Game.Cycles.Recorder.RecordInteraction(new RecordedInteraction(Game.Cycles.Elapsed, terminal.StableId)); }
         }
     }
 }

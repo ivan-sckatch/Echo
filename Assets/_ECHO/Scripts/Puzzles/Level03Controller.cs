@@ -34,7 +34,7 @@ namespace EchoGame
         public void EnterResearch()
         {
             Cycles.Restart(false, false); Cycles.Echoes.Evaluate(-1); researchSuspended = true; Cycles.Game.SetState(GameState.Research);
-            Cycles.Notify("ИССЛЕДОВАНИЕ · Enter — начать цикл. ПКМ — анализ объектов. Механизмы отключены.");
+            Cycles.Notify("ИССЛЕДОВАНИЕ · R — начать запись. ПКМ — анализ объектов. Механизмы отключены.");
         }
         public void StartCycle() { researchSuspended = false; Cycles.Restart(false); }
         public void ResetMechanisms()
@@ -82,7 +82,7 @@ namespace EchoGame
         void RefreshControls()
         {
             if (!Controls) return;
-            Controls.text = IsResearch ? "ИССЛЕДОВАНИЕ · Enter — начать цикл · ПКМ — анализ · Tab — фрагменты" :
+            Controls.text = IsResearch ? "ИССЛЕДОВАНИЕ · R — начать запись · ПКМ — анализ · Tab — фрагменты" :
                 (Cycles.IsRecording ? "R — завершить и сохранить" : "R — начать запись") + " · F — кнопка · T — повтор\nTab — анализ · Del в анализе — удалить последний фрагмент · Backspace — исследование";
         }
         public void DeleteLast()

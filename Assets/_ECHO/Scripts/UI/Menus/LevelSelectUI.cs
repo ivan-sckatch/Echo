@@ -21,6 +21,15 @@ namespace EchoGame.UI
                 Back.GetComponent<RectTransform>().anchoredPosition += Vector2.down * 60;
                 var panel = Back.transform.parent.GetComponent<RectTransform>(); panel.sizeDelta += Vector2.up * 110;
             }
+            if (ThirdLevel && Application.CanStreamedLevelBeLoaded("Level_05_Soglasie"))
+            {
+                var fifth = Instantiate(ThirdLevel, ThirdLevel.transform.parent); fifth.name = "Level 05";
+                fifth.GetComponent<RectTransform>().anchoredPosition += Vector2.down * 192;
+                fifth.onClick = new Button.ButtonClickedEvent(); fifth.onClick.AddListener(() => SceneManager.LoadScene("Level_05_Soglasie"));
+                fifth.GetComponentInChildren<TMPro.TMP_Text>().text = "05 · Согласие";
+                Back.GetComponent<RectTransform>().anchoredPosition += Vector2.down * 96;
+                Back.transform.parent.GetComponent<RectTransform>().sizeDelta += Vector2.up * 96;
+            }
             Back.onClick.AddListener(ui.Back);
         }
     }

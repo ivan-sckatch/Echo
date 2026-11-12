@@ -23,11 +23,14 @@ namespace EchoGame
         public int Attempts { get; private set; }
         public Level03Controller TimedPuzzle;
         public Level04Controller SecurityPuzzle;
-        public IResearchLevel ResearchLevel => TimedPuzzle ? (IResearchLevel)TimedPuzzle : SecurityPuzzle;
+        public Level05Controller GeometryPuzzle;
+        public IResearchLevel ResearchLevel => TimedPuzzle ? (IResearchLevel)TimedPuzzle : SecurityPuzzle ? (IResearchLevel)SecurityPuzzle : GeometryPuzzle;
         public bool IsResearch => ResearchLevel != null && ResearchLevel.IsResearch;
         public void MarkEchoUsed(int id) => usedEchoes.Add(id);
         readonly System.Collections.Generic.HashSet<int> usedEchoes = new System.Collections.Generic.HashSet<int>();
-        public int UsedEchoCount => usedEchoes.Count;
+        int checkpointEchoesUsed;
+        public int UsedEchoCount => checkpointEchoesUsed + usedEchoes.Count;
+        public void ClearCheckpointEchoes() { checkpointEchoesUsed += usedEchoes.Count; usedEchoes.Clear(); Echoes.Clear(); }
         public bool AutoStartRecording = true;
         public bool IsRecording { get; private set; }
         public bool HasFinishedRecording { get; private set; }
@@ -71,17 +74,24 @@ namespace EchoGame
                 recordedMechanism |= IsRecording && Puzzle.Plate.Contains(Player.Feet);
                 if (!plateHint && Puzzle.Plate.IsActive) { plateHint = true; Notification?.Invoke("Платформа держит дверь открытой. Оставьте здесь своё Эхо.", 8); }
             }
+            if (GeometryPuzzle)
+            {
+                int cycle = CycleNumber;
+                GeometryPuzzle.Tick(dt);
+                if (cycle != CycleNumber) return;
+                recordedMechanism |= IsRecording && (GeometryPuzzle.PlateA.Contains(Player.Feet) || GeometryPuzzle.PlateB.Contains(Player.Feet));
+            }
             if (IsRecording) Recorder.Capture(Player.Capture(Elapsed));
             if (SecurityPuzzle) SecurityPuzzle.Tick(dt);
             ClockChanged?.Invoke(Elapsed);
-            if (Exit.Contains(Player) && (!PhasePuzzle || PhasePuzzle.FinalDoorUnlocked) && (!SecurityPuzzle || SecurityPuzzle.CanExit)) { IsRecording = false; RecordingEnd = Elapsed; RecordingChanged?.Invoke(); Game.SetState(GameState.LevelCompleted); return; }
+            if (Exit.Contains(Player) && (!PhasePuzzle || PhasePuzzle.FinalDoorUnlocked) && (!SecurityPuzzle || SecurityPuzzle.CanExit) && (!GeometryPuzzle || GeometryPuzzle.CanExit)) { IsRecording = false; RecordingEnd = Elapsed; RecordingChanged?.Invoke(); Game.SetState(GameState.LevelCompleted); return; }
             if (Elapsed >= Duration) SaveAndRestart();
         }
         bool ResetAfterFall()
         {
             if (Player.Feet.y >= FallResetHeight) return false;
             if (IsResearch) ResearchLevel.EnterResearch(); else Restart(false);
-            Notify("Падение. Возврат на старт; сохранённые фрагменты не удалены.");
+            Notify(GeometryPuzzle ? "Падение · Возврат к контрольной точке · Зафиксированная геометрия сохранена" : "Падение. Возврат на старт; сохранённые фрагменты не удалены.");
             return true;
         }
         public void SaveAndRestart()
@@ -111,10 +121,10 @@ namespace EchoGame
                 Echoes.Add(recording);
                 IsRecording = false; HasFinishedRecording = true; RecordingEnd = Elapsed;
                 RecordingChanged?.Invoke();
-                Notification?.Invoke("Запись завершена. Начинается новый цикл.", 4);
+                if (!GeometryPuzzle) Notification?.Invoke("Запись завершена. Начинается новый цикл.", 4);
             }
             Restart(false);
-            if (!echoHint && Echoes.Echoes.Count > 0)
+            if (!GeometryPuzzle && !echoHint && Echoes.Echoes.Count > 0)
             { echoHint = true; Notification?.Invoke(TimedPuzzle ? "Эхо появится в начале сохранённого интервала и повторит нажатие F." : Scanning ? "Эхо воспроизводит ваш маршрут и применение сканера." : "Эхо повторяет ваш маршрут. Пока оно удерживает платформу, идите к выходу.", 9); }
         }
         public void Notify(string message, float seconds = 8) => Notification?.Invoke(message, seconds);
@@ -124,11 +134,17 @@ namespace EchoGame
             if (IsRecording) SaveAndRestart();
             else { RecordingStart = Elapsed; RecordingEnd = Elapsed; HasFinishedRecording = false; IsRecording = true; recordedMechanism = Puzzle && Puzzle.Plate.Contains(Player.Feet); Recorder.Begin(Player.Capture(Elapsed)); RecordingChanged?.Invoke(); }
         }
-        public void Restart(bool full, bool countCycle = true)
+        public void Restart(bool full, bool countCycle = true, bool resetCheckpoint = true)
         {
             if (Game.State == GameState.ResettingCycle) return;
             Game.SetState(GameState.ResettingCycle);
-            if (full) { Echoes.Clear(); usedEchoes.Clear(); CycleNumber = 0; Attempts = 0; plateHint = false; echoHint = false; }
+            if (full)
+            {
+                Echoes.Clear(); usedEchoes.Clear();
+                if (!GeometryPuzzle || resetCheckpoint) checkpointEchoesUsed = 0;
+                CycleNumber = 0; Attempts = 0; plateHint = false; echoHint = false;
+            }
+            if (GeometryPuzzle) GeometryPuzzle.ResetMechanisms(full && resetCheckpoint);
             Player.Teleport(Spawn);
             if (Scanning) Scanning.ResetSimulation();
             if (PhasePuzzle) PhasePuzzle.ResetMechanisms();

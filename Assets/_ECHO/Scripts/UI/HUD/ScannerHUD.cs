@@ -10,7 +10,7 @@ namespace EchoGame.UI
         bool scannerVisible, phaseVisible;
         public void Apply(ScannerUIData data)
         {
-            bool active = data != null && data.Enabled; bool phase = data != null && !data.Research && (active || data.NodeAActive || data.NodeBActive || data.Overlap > 0 && !data.DoorUnlocked);
+            bool active = data != null && data.Enabled; bool phase = data != null && !data.SingleNode && !data.Research && (active || data.NodeAActive || data.NodeBActive || data.Overlap > 0 && !data.DoorUnlocked);
             if (phaseVisible != phase) { phaseVisible = phase; PhasePanel.Show(phase); }
             if (scannerVisible != active) { scannerVisible = active; ScannerPanel.Show(active); }
             if (data == null) return;

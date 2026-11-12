@@ -5,6 +5,25 @@ namespace EchoGame.Tests
 {
     public class RecordingTests
     {
+        [TestCase(1f)]
+        [TestCase(1.013f)]
+        public void InteractionKeepsExactPoseAfterSameFrameViewTurn(float time)
+        {
+            var go=new GameObject();var recorder=go.AddComponent<EchoRecorder>();
+            try
+            {
+                recorder.Begin(new EchoFrame(0,Vector3.zero,0,0));
+                recorder.Capture(new EchoFrame(time,Vector3.zero,0,0));
+                recorder.Capture(new EchoFrame(time,Vector3.right,90,15));
+                recorder.RecordInteraction(new RecordedInteraction(time,"lever"));
+                var clip=recorder.Finish(new EchoFrame(time+1,Vector3.right,90,15));
+                var pose=clip.Sample(clip.Actions[0].Time);
+                Assert.That(pose.Position,Is.EqualTo(Vector3.right));
+                Assert.That(pose.Yaw,Is.EqualTo(90).Within(.001f));Assert.That(pose.Pitch,Is.EqualTo(15).Within(.001f));
+                for(int i=1;i<clip.Frames.Count;i++)Assert.That(clip.Frames[i].Time,Is.GreaterThan(clip.Frames[i-1].Time));
+            }
+            finally{Object.DestroyImmediate(go);}
+        }
         [Test] public void ManualRecordingCanStartMidCycleAndKeepMeaningfulHold()
         {
             var go = new GameObject(); var recorder = go.AddComponent<EchoRecorder>();

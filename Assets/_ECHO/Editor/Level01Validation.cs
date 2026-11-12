@@ -46,6 +46,27 @@ namespace EchoGame.Editor
             else if (command == "level03") Level03Builder.Build();
             else if (command == "level03batch") Level03Builder.BuildBatch();
             else if (command == "level04batch") Level04Builder.BuildBatch();
+            else if (command == "level05batch") Level05Builder.BuildBatch();
+            else if (command == "signs05") Level05Builder.RemoveWorldSigns();
+            else if (command == "levers05") Level05LeverUpgrade.Apply();
+            else if (command == "upper05") Level05LeverUpgrade.ApplyUpper();
+            else if (command == "testupper05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05Upper", "^EchoGame.Tests.Level05Tests");
+            else if (command == "researchrecord") Run(TestMode.PlayMode, "Echo.PlayTests", "ResearchRecord", "^EchoGame.Tests.ResearchInspectionTests");
+            else if (command == "testlevers05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05Levers", "^EchoGame.Tests.Level05Tests");
+            else if (command == "regressionlevers05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05LeverRegression");
+            else if (command == "recordinglevers05") Run(TestMode.EditMode, "Echo.Tests", "Level05LeverRecording", "^EchoGame.Tests.RecordingTests");
+            else if (command == "scanner05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05Scanner", "^EchoGame.Tests.Level05Tests");
+            else if (command == "reset05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05CheckpointReset", "^EchoGame.Tests.Level05Tests");
+            else if (command == "play05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05PlayMode", "^EchoGame.Tests.Level05Tests");
+            else if (command == "route05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05Route", "^EchoGame.Tests.Level05Tests.Complete");
+            else if (command == "player05")
+            {
+                SessionState.SetString("EchoTestReport", "Level05Windows");
+                runner.Execute(new ExecutionSettings(new Filter { testMode = TestMode.PlayMode, assemblyNames = new[] { "Echo.PlayTests" },
+                    groupNames = new[] { "^EchoGame.Tests.Level05Tests" }, targetPlatform = BuildTarget.StandaloneWindows64 }) { playerHeartbeatTimeout = 180 });
+            }
+            else if (command == "edit05") Run(TestMode.EditMode, "Echo.Tests", "Level05EditMode");
+            else if (command == "regression05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05Regression");
             else if (command == "preview04") Level04Builder.PreviewStart();
             else if (command == "inspection") ResearchInspectionBuilder.Apply();
             else if (command == "vision") Run(TestMode.PlayMode, "Echo.PlayTests", "Level04FloorVision", "^EchoGame.Tests.CameraVisionFloorTests");
@@ -105,7 +126,10 @@ namespace EchoGame.Editor
             public void RunFinished(ITestResultAdaptor result)
             {
                 string name = SessionState.GetString("EchoTestReport", "Tests");
-                string directory = name.StartsWith("Level01Art") ? Level01ArtBuilder.Reports : name.StartsWith("Level04") ? Level04Builder.Reports : Level03Builder.Reports;
+                string directory = name=="Level05CheckpointReset" ? "C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-12-Level05-CheckpointReset" : name=="Level05Scanner" ? Level05Builder.ScannerReports : name.StartsWith("Level05") ? Level05Builder.Reports : name.StartsWith("Level01Art") ? Level01ArtBuilder.Reports : name.StartsWith("Level04") ? Level04Builder.Reports : Level03Builder.Reports;
+                if(name.StartsWith("Level05Lever"))directory=Level05LeverUpgrade.Reports;
+                if(name=="Level05Upper")directory=Level05LeverUpgrade.UpperReports;
+                if(name=="ResearchRecord")directory="C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-12-ResearchRecord";
                 Directory.CreateDirectory(directory);
                 string path = directory + "/" + name + ".xml";
                 TestRunnerApi.SaveResultToFile(result, path);

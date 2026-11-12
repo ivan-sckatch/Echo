@@ -153,6 +153,8 @@ namespace EchoGame.Tests
         }
         [UnityTest] public IEnumerator TimelinePauseTracksAndUniqueIds()
         {
+            // Exercise three UI lanes independently of Level_01's campaign capacity of one.
+            cycles.Echoes.MaximumEchoes = 3;
             var keyboard = InputSystem.AddDevice<Keyboard>();
             try
             {

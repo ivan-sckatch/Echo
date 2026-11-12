@@ -30,7 +30,7 @@ namespace EchoGame
                 if (camera.Cone) camera.Cone.enabled = false;
             }
             Cycles.Game.SetState(GameState.Research); RefreshControls();
-            Cycles.Notify("ИССЛЕДОВАНИЕ · Enter — начать цикл. Камеры и механизмы отключены. ПКМ — анализ.");
+            Cycles.Notify("ИССЛЕДОВАНИЕ · R — начать запись. Камеры и механизмы отключены. ПКМ — анализ.");
         }
         public void StartCycle() { IsResearch = false; Cycles.Restart(false); }
         public void ResearchTick(float dt)
@@ -40,7 +40,7 @@ namespace EchoGame
         void RefreshControls()
         {
             if (!Controls) return;
-            Controls.text = IsResearch ? "ИССЛЕДОВАНИЕ · Enter — начать цикл · ПКМ — анализ · Tab — фрагменты" :
+            Controls.text = IsResearch ? "ИССЛЕДОВАНИЕ · R — начать запись · ПКМ — анализ · Tab — фрагменты" :
                 (Cycles.Player.Immobilized?"ЗАХВАТ · ":"")+(Cycles.IsRecording?"R — завершить и сохранить":"R — начать запись")+" · T — повтор\nПКМ — сканер · Space — прыжок · Tab — анализ · Del — удалить фрагмент · Backspace — исследование";
         }
         public void Reject(string reason,float start,float end,int id)

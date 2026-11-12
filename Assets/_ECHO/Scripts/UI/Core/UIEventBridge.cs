@@ -102,7 +102,8 @@ namespace EchoGame.UI
                 NextScene = !string.IsNullOrEmpty(Cycles.NextLevelScene) ? Cycles.NextLevelScene :
                     SceneManager.GetActiveScene().name == "Level_01" && Application.CanStreamedLevelBeLoaded("Level_02") ? "Level_02" :
                     SceneManager.GetActiveScene().name == "Level_02" && Application.CanStreamedLevelBeLoaded("Level_03") ? "Level_03" :
-                    SceneManager.GetActiveScene().name == "Level_03" && Application.CanStreamedLevelBeLoaded("Level_04") ? "Level_04" : null,
+                    SceneManager.GetActiveScene().name == "Level_03" && Application.CanStreamedLevelBeLoaded("Level_04") ? "Level_04" :
+                    SceneManager.GetActiveScene().name == "Level_04" && Application.CanStreamedLevelBeLoaded("Level_05_Soglasie") ? "Level_05_Soglasie" : null,
                 Scanner = BuildScannerData()
             };
             if (ContextSource is IUIContextSource context)
@@ -149,8 +150,13 @@ namespace EchoGame.UI
                 bool found = scanner.Current.Enabled && !string.IsNullOrEmpty(scanner.InspectionTitle);
                 return new ScannerUIData { Research = true, Enabled = found, HasTarget = found, Target = scanner.InspectionTitle, Action = scanner.InspectionAction };
             }
-            if (!Cycles.Scanning || (!Cycles.PhasePuzzle && !Cycles.SecurityPuzzle)) return null;
+            if (!Cycles.Scanning || (!Cycles.PhasePuzzle && !Cycles.SecurityPuzzle && !Cycles.GeometryPuzzle)) return null;
             var world = Cycles.Scanning; var target = world.PlayerTarget; var puzzle = Cycles.PhasePuzzle;
+            if (Cycles.GeometryPuzzle)
+                return new ScannerUIData { SingleNode = true, Enabled = Game.State == GameState.Playing && world.PlayerScanner.Current.Enabled,
+                    HasTarget = target, Target = target ? target.DisplayName : "", Discovered = target && target.IsDiscovered,
+                    Activated = target && target.HasActivated, Discovery = target ? target.DiscoveryProgress(0) : 0,
+                    Activation = target ? target.ActivationProgress(0) : 0, DoorUnlocked = Cycles.GeometryPuzzle.CanExit };
             if (Cycles.SecurityPuzzle)
             {
                 var security = Cycles.SecurityPuzzle;

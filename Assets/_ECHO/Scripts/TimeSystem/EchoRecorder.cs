@@ -9,7 +9,17 @@ namespace EchoGame
         readonly List<EchoFrame> frames = new List<EchoFrame>(4096);
         EchoFrame previous;
         readonly List<RecordedInteraction> actions = new List<RecordedInteraction>();
-        public void RecordInteraction(RecordedInteraction action) => actions.Add(action);
+        public void RecordInteraction(RecordedInteraction action)
+        {
+            // Keep the exact interaction ray, including a view turn between grid samples.
+            // Callers capture the player's pose immediately before recording the action.
+            if (frames.Count>0 && Mathf.Approximately(previous.Time,action.Time))
+            {
+                if (Mathf.Approximately(frames[frames.Count-1].Time,action.Time)) frames[frames.Count-1]=previous;
+                else frames.Add(previous);
+            }
+            actions.Add(action);
+        }
         int nextSample;
         public void Begin(EchoFrame initial) { actions.Clear(); frames.Clear(); frames.Add(initial); previous = initial; nextSample = Mathf.FloorToInt(initial.Time * SampleRate) + 1; }
         public void Capture(EchoFrame current)

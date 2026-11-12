@@ -15,11 +15,13 @@ namespace EchoGame
         int actionIndex;
         public void ResetEvents() => actionIndex = 0;
         public void ReplayEvents(float time, Level03Controller level)
+            => ReplayEvents(time, (echo, action) => level.Replay(echo, action));
+        public void ReplayEvents(float time, System.Action<EchoPlayback, RecordedInteraction> replay)
         {
             while (actionIndex < Recording.Actions.Count && Recording.Actions[actionIndex].Time <= time)
             {
                 var action = Recording.Actions[actionIndex++];
-                if (action.Time >= Recording.StartTime && action.Time < Recording.EndTime) level.Replay(this, action);
+                if (action.Time >= Recording.StartTime && action.Time < Recording.EndTime) replay(this, action);
             }
         }
         public void Initialize(EchoRecording recording) { Recording = recording; Evaluate(0); }

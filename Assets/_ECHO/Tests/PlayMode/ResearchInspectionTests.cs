@@ -11,6 +11,43 @@ namespace EchoGame.Tests
 {
     public class ResearchInspectionTests
     {
+        [UnityTest] public IEnumerator RLeavesResearchAndRecordsImmediatelyAcrossLevels()
+        {
+            var keyboard = InputSystem.AddDevice<Keyboard>();
+            try
+            {
+                foreach (string scene in new[] { "Level_03", "Level_04", "Level_05_Soglasie" })
+                {
+                    yield return SceneManager.LoadSceneAsync(scene); yield return null;
+                    var c = Object.FindAnyObjectByType<TimeCycleManager>();
+                    int cycle = c.CycleNumber;
+                    InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Enter));
+                    yield return null; yield return null;
+                    Assert.That(c.Game.State, Is.EqualTo(GameState.Research), scene);
+                    InputSystem.QueueStateEvent(keyboard, new KeyboardState()); yield return null;
+                    InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.R));
+                    yield return null; yield return null;
+                    Assert.That(c.Game.State, Is.EqualTo(GameState.Playing), scene);
+                    Assert.That(c.IsRecording, Is.True, scene);
+                    Assert.That(c.RecordingStart, Is.Zero, scene);
+                    Assert.That(c.CycleNumber, Is.EqualTo(cycle + 1), "One press starts exactly one cycle");
+                    Assert.That(c.Echoes.Echoes.Count, Is.Zero, "The opening press must not save an empty recording");
+                    InputSystem.QueueStateEvent(keyboard, new KeyboardState()); yield return null;
+                    for (int i=0;i<60;i++)
+                    {
+                        c.Player.GetComponent<CharacterController>().Move(Vector3.forward * .025f);
+                        yield return new WaitForFixedUpdate();
+                    }
+                    InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.R));
+                    yield return null; yield return null;
+                    Assert.That(c.Echoes.Echoes.Count, Is.EqualTo(1), scene);
+                    Assert.That(c.Echoes.Echoes[0].Recording.StartTime, Is.Zero, scene);
+                    Assert.That(c.IsRecording, Is.False, "After saving, normal manual recording resumes");
+                    InputSystem.QueueStateEvent(keyboard, new KeyboardState()); yield return null;
+                }
+            }
+            finally { InputSystem.RemoveDevice(keyboard); Time.timeScale = 1; }
+        }
         [UnityTest] public IEnumerator ResearchObjectsHaveDescriptionsAndNoTechnicalSigns()
         {
             foreach (string scene in new[] { "Level_03", "Level_04" })

@@ -61,6 +61,7 @@ namespace EchoGame.UI
     }
     public sealed class ScannerUIData
     {
+        public bool SingleNode;
         public bool Research;
         public string Action;
         public bool SequentialNodes;

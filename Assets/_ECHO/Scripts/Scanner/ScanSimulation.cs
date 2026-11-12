@@ -14,6 +14,7 @@ namespace EchoGame
         [Min(.001f)] public float BeamWidth = .02f;
         public float SynchronizationRoomStart = 11.5f;
         public bool SynchronizationHints = true;
+        public bool TutorialHints = true;
         public ScanRegistry Registry { get; } = new ScanRegistry();
         public PhaseNode PlayerTarget { get; private set; }
         public ScanVisualController PlayerVisual { get; private set; }
@@ -41,7 +42,7 @@ namespace EchoGame
         {
             EnsureInitialized(); Registry.Rebuild(Nodes); PlayerScanner.ResetScanner(); PlayerTarget = null;
             contributing.Clear(); foreach (var node in Nodes) node.ResetNode(); HideBeams(); PruneEchoVisuals();
-            if (!introShown) { introShown = true; Cycles.Notify("Удерживайте ПКМ, чтобы активировать темпоральный сканер.", 9); }
+            if (TutorialHints && !introShown) { introShown = true; Cycles.Notify("Удерживайте ПКМ, чтобы активировать темпоральный сканер.", 9); }
         }
         void PruneEchoVisuals()
         {
@@ -76,11 +77,11 @@ namespace EchoGame
             {
                 node.EndStep(dt);
                 foreach (int id in node.SignalingSources) if (id > 0) contributing.Add(id);
-                if (node.IsDiscovered && !discoveryHintShown)
+                if (TutorialHints && node.IsDiscovered && !discoveryHintShown)
                 { discoveryHintShown = true; Cycles.Notify("Удерживайте сканирующий луч на фазовом узле.", 7); }
             }
             PlayerVisual.Render(PlayerScanner.Current, playerEnd, PlayerTarget);
-            if (SynchronizationHints && !overlapHintShown && Cycles.Player.Feet.z >= SynchronizationRoomStart)
+            if (TutorialHints && SynchronizationHints && !overlapHintShown && Cycles.Player.Feet.z >= SynchronizationRoomStart)
             { overlapHintShown = true; Cycles.Notify("Некоторые механизмы требуют одновременного воздействия.", 8); }
         }
         public void Analyze()

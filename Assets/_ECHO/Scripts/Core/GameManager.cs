@@ -20,12 +20,18 @@ namespace EchoGame
             if (k == null) return;
             if (Cycles.ResearchLevel != null)
             {
-                if (State == GameState.Research && k.enterKey.wasPressedThisFrame) { Cycles.ResearchLevel.StartCycle(); return; }
+                if (State == GameState.Research && k.rKey.wasPressedThisFrame)
+                {
+                    Cycles.ResearchLevel.StartCycle();
+                    if (!Cycles.IsRecording) Cycles.ToggleRecording();
+                    return;
+                }
                 if ((State == GameState.Playing || State == GameState.LevelCompleted) && k.backspaceKey.wasPressedThisFrame) { Cycles.ResearchLevel.EnterResearch(); return; }
                 if (Cycles.TimedPuzzle && State == GameState.Timeline && k.deleteKey.wasPressedThisFrame) { Cycles.TimedPuzzle.DeleteLast(); return; }
                 if (State == GameState.Research) Cycles.Player.Look();
             }
             if (Cycles.SecurityPuzzle && State == GameState.Timeline && k.deleteKey.wasPressedThisFrame) { Cycles.SecurityPuzzle.DeleteLast(); return; }
+            if (Cycles.GeometryPuzzle && State == GameState.Timeline && k.deleteKey.wasPressedThisFrame) { Cycles.Echoes.RemoveLastFragment(); Cycles.Notify("Последняя запись удалена"); return; }
             if (k.escapeKey.wasPressedThisFrame)
             {
                 if (EscapeRequested != null) EscapeRequested.Invoke();
@@ -35,7 +41,7 @@ namespace EchoGame
             if (k.tabKey.wasPressedThisFrame && (State == GameState.Playing || State == GameState.Research || State == GameState.Timeline))
             { if (State == GameState.Timeline) Resume(); else SetState(GameState.Timeline); return; }
             if (State != GameState.Playing) return;
-            if (k.rKey.wasPressedThisFrame && (k.leftShiftKey.isPressed || k.rightShiftKey.isPressed)) Cycles.Restart(true);
+            if (k.rKey.wasPressedThisFrame && (k.leftShiftKey.isPressed || k.rightShiftKey.isPressed)) Cycles.Restart(true, resetCheckpoint: false);
             else if (k.tKey.wasPressedThisFrame) Cycles.Restart(false);
             else if (k.rKey.wasPressedThisFrame || k.qKey.wasPressedThisFrame) Cycles.ToggleRecording();
             if (k.fKey.wasPressedThisFrame && Interaction) Interaction.TryInteract();
