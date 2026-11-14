@@ -67,10 +67,10 @@ namespace EchoGame.Tests
             c.ToggleRecording();yield return Walk(plate.transform.position.x,plate.transform.position.z);
             yield return Until(29.5f);c.SaveAndRestart();yield return null;
         }
-        IEnumerator RecordTerminal(GeometryTerminal terminal,float x,float z,float time)
+        IEnumerator RecordTerminal(GeometryTerminal terminal,float x,float z,float time,float end=29.5f)
         {
             c.ToggleRecording();yield return Walk(x,z);yield return Until(time);yield return Press(terminal);
-            yield return Until(29.5f);c.SaveAndRestart();yield return null;
+            yield return Until(end);c.SaveAndRestart();yield return null;
         }
         IEnumerator Lower()
         {
@@ -79,20 +79,40 @@ namespace EchoGame.Tests
             Assert.That(p.LowerReady,Is.True);yield return Walk(-6,-10);yield return Walk(11,-10);yield return Walk(11,10,1);
             Assert.That(p.ActiveSection,Is.EqualTo(1));Assert.That(c.Echoes.Echoes.Count,Is.Zero);
         }
-        IEnumerator Middle()
+        IEnumerator Middle(bool afterExpiry=false)
         {
             c.ToggleRecording();yield return Walk(12,11);yield return Until(3);yield return Press(p.MiddleWall);
             yield return Walk(9.5f,11);yield return Until(16);yield return Press(p.LiftFinal,false);
-            yield return Until(29.5f);c.SaveAndRestart();yield return null;
+            float recordingEnd=afterExpiry ? 24 : 29.5f;
+            yield return Until(recordingEnd);c.SaveAndRestart();yield return null;
             Assert.That(c.Echoes.Echoes[0].Recording.Actions.Count,Is.EqualTo(2),"Record both the partition and final circuit interaction");
-            yield return RecordTerminal(p.MiddleBridge,7,11,5);
+            yield return RecordTerminal(p.MiddleBridge,7,11,5,recordingEnd);
             yield return Until(6.2f);yield return Walk(5,11);yield return Walk(-11,11);yield return Walk(-11,9.5f);yield return Press(p.Lift);
             float first=c.Elapsed;
             yield return Walk(-11,6.5f);yield return Press(p.LiftSecond);float second=c.Elapsed;
-            yield return Capture("MiddleSequence");
+            if (!afterExpiry) yield return Capture("MiddleSequence");
             yield return Until(16.2f);Assert.That(p.LiftSequenceStep,Is.EqualTo(3),"Recorded final lever must complete the circuit");
-            yield return Wait(1.6f);Assert.That(p.MiddleReady,Is.True,"Middle route did not settle at "+c.Elapsed);
+            yield return Wait(1.6f);Assert.That(p.Middle[2].AtTarget,Is.True,"Middle route did not settle at "+c.Elapsed);
             Assert.That(p.MiddleBridge.IsActive,Is.False,"Lift must work after the bridge closes");
+            if (afterExpiry)
+            {
+                yield return Walk(-11,-10.35f);
+                yield return Until(26.15f);
+                Assert.That(p.ActiveEchoCount,Is.Zero);
+                Assert.That(p.LiftFinal.IsActive,Is.False);
+                Assert.That(p.Middle[2].IsMoving,Is.True);
+                yield return Walk(-11,-12,2);
+                Assert.That(p.ActiveSection,Is.EqualTo(2));
+                Assert.That(p.Middle[2].Locked,Is.True);
+                Assert.That(p.Middle[2].IsMoving,Is.False);
+                Assert.That(p.Middle[2].Progress,Is.InRange(.01f,.99f));
+                var frozen=p.Middle[2].Capture();
+                c.Restart(false);yield return Wait(.3f);
+                Assert.That(p.ActiveSection,Is.EqualTo(2));
+                Assert.That(p.Middle[2].Progress,Is.EqualTo(frozen.Progress));
+                Assert.That(p.Middle[2].transform.localRotation,Is.EqualTo(frozen.Rotation));
+                yield break;
+            }
             yield return Walk(-11,-12,2);
             Assert.That(lastWalkTime,Is.LessThan(25),"Keep at least one second of lift-window margin");
             var folder="C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-12-Level05-Upper";
@@ -190,12 +210,16 @@ namespace EchoGame.Tests
             Assert.That(c.Elapsed,Is.LessThan(1));Assert.That(Vector3.Distance(c.Player.Feet,p.Checkpoints.SectionSpawns[1].position),Is.LessThan(.1f));
             c.Restart(true);yield return null;Assert.That(p.ActiveSection,Is.Zero);Assert.That(p.Lower[2].Locked,Is.False);Assert.That(p.Lower[2].Progress,Is.Zero);
         }
-        [UnityTest] public IEnumerator TerminalExpiryAndCheckpointRejectMovingGeometry()
+        [UnityTest] public IEnumerator SecondCheckpointAcceptsArrivalWhileRampRetractsAfterEchoesExpire()
+        {
+            yield return Lower();
+            yield return Middle(afterExpiry:true);
+        }
+        [UnityTest] public IEnumerator TerminalExpiryClosesPartitionAndRepeatClearsSignal()
         {
             yield return Lower();
             yield return Walk(12,11);yield return Press(p.MiddleWall);Assert.That(p.MiddleWall.Source,Is.Zero);
             yield return Wait(.1f);Assert.That(p.Middle[1].IsMoving,Is.True);
-            Assert.That(p.Checkpoints.TryActivate(2,true),Is.False);
             yield return Until(14);Assert.That(p.MiddleWall.IsActive,Is.False);yield return Wait(1.5f);Assert.That(p.Middle[1].Progress,Is.Zero);
             c.Restart(false);Assert.That(p.MiddleWall.Source,Is.EqualTo(-1));Assert.That(p.Middle[1].Progress,Is.Zero);
         }
@@ -204,7 +228,7 @@ namespace EchoGame.Tests
             yield return Lower();
             Assert.That(p.MiddleWall.Countdown.gameObject.activeSelf,Is.False);
             p.LiftFinal.Pulse(0);p.LiftSecond.Pulse(0);
-            Assert.That(p.LiftSequenceStep,Is.Zero);Assert.That(p.MiddleReady,Is.False);
+            Assert.That(p.LiftSequenceStep,Is.Zero);Assert.That(p.Middle[2].AtTarget,Is.False);
             p.Lift.Pulse(0);yield return null;
             Assert.That(p.LiftSequenceStep,Is.EqualTo(1));Assert.That(p.Lift.Countdown.gameObject.activeSelf,Is.True);
             Assert.That(p.Lift.Remaining,Is.InRange(9,10));Assert.That(Quaternion.Angle(p.Lift.Handle.localRotation,Quaternion.Euler(-125,0,0)),Is.LessThan(.01f));
@@ -214,7 +238,7 @@ namespace EchoGame.Tests
             Assert.That(Quaternion.Angle(p.Lift.Handle.localRotation,Quaternion.Euler(-55,0,0)),Is.LessThan(.01f));
             // Ownership does not gate the circuit: spatial separation makes an Echo useful.
             p.Lift.Pulse(0);p.LiftSecond.Pulse(0);p.LiftFinal.Pulse(0);yield return Wait(1.6f);
-            Assert.That(p.MiddleReady,Is.True);Assert.That(p.MiddleBridge.IsActive,Is.False);
+            Assert.That(p.Middle[2].AtTarget,Is.True);Assert.That(p.MiddleBridge.IsActive,Is.False);
             Keys(Key.LeftShift,Key.R);yield return null;yield return null;Keys();yield return null;
             Assert.That(p.ActiveSection,Is.EqualTo(1));Assert.That(p.LiftSequenceStep,Is.Zero);Assert.That(p.Middle[2].Progress,Is.Zero);
         }

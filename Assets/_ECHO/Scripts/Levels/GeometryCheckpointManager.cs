@@ -26,11 +26,16 @@ namespace EchoGame
             Cycles.FallResetHeight = SectionSpawns[ActiveCheckpoint].position.y - 3;
             Refresh();
         }
-        public bool TryActivate(int checkpoint, bool puzzleReady)
+        public bool TryActivate(int checkpoint, bool lowerReady)
         {
-            if (checkpoint != ActiveCheckpoint + 1 || checkpoint > Checkpoints.Length || !puzzleReady) return false;
-            foreach (var m in Mechanisms) if (m.Section == ActiveCheckpoint && (m.IsMoving || ActiveCheckpoint!=1 && !m.AtTarget))
-            { Cycles.Notify("Механизм ещё не завершил движение", 2); return false; }
+            if (checkpoint != ActiveCheckpoint + 1 || checkpoint > Checkpoints.Length) return false;
+            if (ActiveCheckpoint == 0)
+            {
+                if (!lowerReady) return false;
+                foreach (var m in Mechanisms) if (m.Section == 0 && (m.IsMoving || !m.AtTarget))
+                { Cycles.Notify("Механизм ещё не завершил движение", 2); return false; }
+            }
+            // Reaching the second pad completes the tier, even during retraction.
             foreach (var m in Mechanisms) if (m.Section == ActiveCheckpoint) m.Freeze();
             for (int i = 0; i < Mechanisms.Length; i++) baseline[i] = Mechanisms[i].Capture();
             ActiveCheckpoint = checkpoint;

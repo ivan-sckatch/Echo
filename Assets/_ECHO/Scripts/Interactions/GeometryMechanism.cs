@@ -25,7 +25,7 @@ namespace EchoGame
         public bool Command { get; private set; }
         public bool Locked { get; private set; }
         public bool AtTarget => Progress >= 1;
-        public bool IsMoving => !Mathf.Approximately(Progress, Command ? 1 : 0);
+        public bool IsMoving => !Locked && !Mathf.Approximately(Progress, Command ? 1 : 0);
         public void SetCommand(bool value) { if (!Locked) Command = value; }
         bool moving;
         public void Tick(float dt)

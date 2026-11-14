@@ -8,7 +8,7 @@ namespace EchoGame
         public TimeCycleManager Cycles;
         public GeometryCheckpointManager Checkpoints;
         public PressurePlate PlateA, PlateB;
-        // Per tier: bridge A, bridge B/wall, rising section. All must settle before a checkpoint.
+        // Per tier: bridge A, bridge B/wall, rising section.
         public GeometryMechanism[] Lower, Middle, Upper;
         public GeometryTerminal MiddleWall, MiddleBridge, Lift, UpperA, UpperB;
         public GeometryTerminal LiftSecond, LiftFinal;
@@ -49,7 +49,6 @@ namespace EchoGame
         void OnDisable() { if (FinalNode) FinalNode.Activated -= OnNode; }
         void OnNode(PhaseNode node, int source) { if (ActiveSection == 2) CanExit = true; }
         public bool LowerReady => TwoPlateEchoes() && Settled(Lower);
-        public bool MiddleReady => LiftSequenceStep==3 && LiftFinal.IsActive && Middle[2].AtTarget && !Middle[2].IsMoving;
         public bool UpperPowered => UpperA.IsActive && UpperB.IsActive;
         public bool UpperReady => UpperPowered && Settled(Upper);
         static bool Settled(GeometryMechanism[] set) { foreach (var m in set) if (!m.AtTarget || m.IsMoving) return false; return true; }
@@ -99,7 +98,7 @@ namespace EchoGame
             foreach (var t in Terminals) t.Refresh();
             ExitDoor.SetCommand(CanExit); ExitDoor.Tick(dt, Cycles.Player.Feet);
             Checkpoints.Tick(dt); Refresh();
-            if (Checkpoints.ContainsNext(Cycles.Player.Feet)) Checkpoints.TryActivate(ActiveSection + 1, ActiveSection == 0 ? LowerReady : MiddleReady);
+            if (Checkpoints.ContainsNext(Cycles.Player.Feet)) Checkpoints.TryActivate(ActiveSection + 1, ActiveSection == 0 && LowerReady);
         }
         void Refresh()
         {

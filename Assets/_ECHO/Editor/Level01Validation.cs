@@ -51,6 +51,7 @@ namespace EchoGame.Editor
             else if (command == "levers05") Level05LeverUpgrade.Apply();
             else if (command == "upper05") Level05LeverUpgrade.ApplyUpper();
             else if (command == "testupper05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05Upper", "^EchoGame.Tests.Level05Tests");
+            else if (command == "checkpointarrival05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05CheckpointArrival", "^EchoGame.Tests.Level05Tests");
             else if (command == "researchrecord") Run(TestMode.PlayMode, "Echo.PlayTests", "ResearchRecord", "^EchoGame.Tests.ResearchInspectionTests");
             else if (command == "testlevers05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05Levers", "^EchoGame.Tests.Level05Tests");
             else if (command == "regressionlevers05") Run(TestMode.PlayMode, "Echo.PlayTests", "Level05LeverRegression");
@@ -129,6 +130,7 @@ namespace EchoGame.Editor
                 string directory = name=="Level05CheckpointReset" ? "C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-12-Level05-CheckpointReset" : name=="Level05Scanner" ? Level05Builder.ScannerReports : name.StartsWith("Level05") ? Level05Builder.Reports : name.StartsWith("Level01Art") ? Level01ArtBuilder.Reports : name.StartsWith("Level04") ? Level04Builder.Reports : Level03Builder.Reports;
                 if(name.StartsWith("Level05Lever"))directory=Level05LeverUpgrade.Reports;
                 if(name=="Level05Upper")directory=Level05LeverUpgrade.UpperReports;
+                if(name=="Level05CheckpointArrival")directory="C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-13-Level05-CheckpointArrival";
                 if(name=="ResearchRecord")directory="C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-12-ResearchRecord";
                 Directory.CreateDirectory(directory);
                 string path = directory + "/" + name + ".xml";
