@@ -45,7 +45,10 @@ namespace EchoGame.Editor
             if (!m) { m = new Material(Shader.Find("Universal Render Pipeline/Lit")); AssetDatabase.CreateAsset(m, path); }
             var color = Hex(hex); if (transparent) color.a = .36f;
             m.SetColor("_BaseColor", color); m.SetFloat("_Metallic", metal); m.SetFloat("_Smoothness", smooth);
-            if (emission > 0) { m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", color * emission); }
+            if (emission > 0) {
+                m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
+                m.SetColor("_EmissionColor", color * emission); m.EnableKeyword("_EMISSION");
+            }
             if (transparent)
             {
                 m.SetFloat("_Surface", 1); m.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
@@ -135,7 +138,8 @@ namespace EchoGame.Editor
             Module("CeilingLamp", t => {
                 Box(t, "Housing", Vector3.zero, new Vector3(2.5f, .14f, .7f), "WornMetal");
                 Box(t, "Diffuser", new Vector3(0, -.08f, 0), new Vector3(2.25f, .025f, .48f), "Lamp");
-                for (int i = -2; i <= 2; i++) Box(t, "Guard", new Vector3(i * .45f, -.105f, 0), new Vector3(.035f, .03f, .53f), "Graphite"); });
+                for (int i = -2; i <= 2; i++) Box(t, "Guard", new Vector3(i * .45f, -.105f, 0), new Vector3(.035f, .03f, .53f), "Graphite");
+                Level01LightingBuilder.ConfigureFixture(t); });
             Module("SupportColumn", t => {
                 Box(t, "Pier", Vector3.up * 1.9f, new Vector3(.32f, 3.8f, .5f), "WornMetal");
                 Box(t, "Cap", Vector3.up * 3.65f, new Vector3(.55f, .3f, .7f), "Graphite");
@@ -219,11 +223,7 @@ namespace EchoGame.Editor
                 Instance("CeilingLamp", lighting, new Vector3(x, 3.84f, z));
             foreach (var l in GameObject.Find("_Environment").GetComponentsInChildren<Light>()) l.enabled = false;
             RenderSettings.ambientMode = AmbientMode.Flat; RenderSettings.ambientLight = Hex("B8D8E8") * .48f;
-            for (int i = 0; i < 3; i++) {
-                var l = Node("Sector fill " + i, lighting).AddComponent<Light>(); l.type = LightType.Point;
-                l.transform.position = new Vector3(i == 1 ? 4 : -2, 3.5f, 3 + 8 * i);
-                l.range = 13; l.intensity = 2.6f; l.color = Hex("B8D8E8"); l.shadows = i == 1 ? LightShadows.Soft : LightShadows.None;
-            }
+            Level01LightingBuilder.ConfigureLighting(lighting);
             var camera = cycles.Player.View.GetComponent<Camera>(); camera.backgroundColor = Hex("252D36"); camera.clearFlags = CameraClearFlags.SolidColor;
             camera.allowHDR = true; camera.GetUniversalAdditionalCameraData().renderPostProcessing = true;
             var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(Art + "/VFX/Level01Atmosphere.asset");
@@ -294,18 +294,8 @@ namespace EchoGame.Editor
                 part.transform.localPosition = position; part.transform.localScale = scale; Object.DestroyImmediate(part.GetComponent<Collider>());
                 var renderer = part.GetComponent<Renderer>(); renderer.sharedMaterial = mats["EchoProjection"]; renderer.shadowCastingMode = ShadowCastingMode.Off;
             };
-            limb("Head", new Vector3(0, .68f, 0), Vector3.one * .28f, PrimitiveType.Sphere);
-            limb("Torso", new Vector3(0, .22f, 0), new Vector3(.42f, .34f, .25f), PrimitiveType.Capsule);
-            limb("Pelvis", new Vector3(0, -.2f, 0), new Vector3(.34f, .14f, .24f), PrimitiveType.Sphere);
-            foreach (float side in new[] { -1f, 1f }) {
-                limb("Arm", new Vector3(side * .29f, .1f, 0), new Vector3(.12f, .325f, .14f), PrimitiveType.Capsule);
-                limb("Leg", new Vector3(side * .105f, -.55f, 0), new Vector3(.16f, .325f, .18f), PrimitiveType.Capsule);
-            }
+            limb("Capsule", Vector3.zero, new Vector3(.64f, .9f, .64f), PrimitiveType.Capsule);
             var v = g.AddComponent<EchoProjectionArt>(); v.Playback = playback;
-            // Thin scan bands keep the body readable without particle occlusion.
-            for (int i = 0; i < 9; i++) {
-                var band = Box(body, "Scan band", new Vector3(0, -.25f + i * .095f, -.145f), new Vector3(.34f, .006f, .012f), "Cyan");
-                band.isStatic = false; band.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off; }
             v.Silhouette = body.GetComponentsInChildren<Renderer>();
             var trail = Node("Temporal afterimage", g.transform).AddComponent<TrailRenderer>(); trail.transform.localPosition = Vector3.up * .9f;
             trail.sharedMaterial = mats["EchoProjection"]; trail.time = .22f; trail.startWidth = .34f; trail.endWidth = 0;

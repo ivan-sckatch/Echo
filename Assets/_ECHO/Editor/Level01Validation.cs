@@ -33,6 +33,8 @@ namespace EchoGame.Editor
             try { command = File.ReadAllText(Request).Trim(); File.Delete(Request); }
             catch (IOException) { return; } // A request may still be being written by a local tool.
             if (command == "art01") Level01ArtBuilder.Apply();
+            else if (command == "capsule01") Level01CapsuleBuilder.Apply();
+            else if (command == "lighting01") Level01LightingBuilder.Apply();
             else if (command == "capture01") Level01ArtBuilder.Capture();
             else if (command == "testart01") Run(TestMode.PlayMode, "Echo.PlayTests", "Level01ArtPlayMode", "^EchoGame.Tests.Level01");
             else if (command == "playerart01")
