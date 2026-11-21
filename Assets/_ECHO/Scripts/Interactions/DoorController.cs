@@ -7,6 +7,11 @@ namespace EchoGame
         public Transform Panel;
         public Renderer Indicator;
         public Material ClosedMaterial, OpenMaterial;
+        public bool SplitDiagonally;
+        public Transform UpperLeaf, LowerLeaf;
+        public Vector3 SplitDirection = new Vector3(-.493f,.870f,0);
+        public float SplitTravel = 2.9f;
+        public Renderer[] AdditionalIndicators = new Renderer[0];
         public float Travel = 3.8f;
         [Min(.01f)] public float OpenSeconds = .35f, CloseSeconds = .18f;
         public DoorState State { get; private set; }
@@ -19,15 +24,30 @@ namespace EchoGame
             bool occupied = Mathf.Abs(local.x) < 1.85f && Mathf.Abs(local.z) < .85f;
             bool open = Command || (occupied && amount > 0);
             amount = Mathf.MoveTowards(amount, open ? 1 : 0, dt / (open ? OpenSeconds : CloseSeconds));
-            Panel.localPosition = Vector3.up * (1.7f + amount * Travel);
+            ApplyPose();
             State = amount == 0 ? DoorState.Closed : amount == 1 ? DoorState.Open : open ? DoorState.Opening : DoorState.Closing;
-            Indicator.sharedMaterial = Command ? OpenMaterial : ClosedMaterial;
+            ApplyIndicator();
         }
         public void ResetMechanism()
         {
             amount = 0; Command = false; State = DoorState.Closed;
-            Panel.localPosition = Vector3.up * 1.7f;
-            Indicator.sharedMaterial = ClosedMaterial;
+            ApplyPose();
+            ApplyIndicator();
+        }
+        void ApplyPose()
+        {
+            bool split = SplitDiagonally && UpperLeaf && LowerLeaf;
+            Panel.localPosition = Vector3.up * (1.7f + (split ? 0 : amount * Travel));
+            if (!split) return;
+            Vector3 offset = SplitDirection.normalized * (amount * SplitTravel);
+            UpperLeaf.localPosition = offset; LowerLeaf.localPosition = -offset;
+        }
+        void ApplyIndicator()
+        {
+            var material = Command ? OpenMaterial : ClosedMaterial;
+            if (Indicator) Indicator.sharedMaterial = material;
+            if (AdditionalIndicators == null) return;
+            foreach (var indicator in AdditionalIndicators) if (indicator) indicator.sharedMaterial = material;
         }
     }
 }

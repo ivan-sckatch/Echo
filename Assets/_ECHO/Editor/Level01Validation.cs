@@ -35,6 +35,25 @@ namespace EchoGame.Editor
             if (command == "art01") Level01ArtBuilder.Apply();
             else if (command == "capsule01") Level01CapsuleBuilder.Apply();
             else if (command == "lighting01") Level01LightingBuilder.Apply();
+            else if (command == "walltrial02") EchoWallModuleBuilder.Apply();
+            else if (command == "capturewall02") EchoWallModuleBuilder.Capture();
+            else if (command == "wallvariants02") EchoWallModuleBuilder.ApplyVariants();
+            else if (command == "capturewallvariants02") EchoWallModuleBuilder.CaptureVariants();
+            else if (command == "exportwalls01") EchoWallSetExporter.Export();
+            else if (command == "exportfloors01") EchoWallSetExporter.ExportFloors();
+            else if (command == "exportassets") EchoWallSetExporter.ExportAll();
+            else if (command == "ceilingtrial02") EchoCeilingModuleBuilder.Apply();
+            else if (command == "captureceiling02") EchoCeilingModuleBuilder.Capture();
+            else if (command == "modularlevel02") Level02ModularBuilder.Apply();
+            else if (command == "capturemodular02") Level02ModularBuilder.Capture();
+            else if (command == "testmodular02") Run(TestMode.PlayMode,"Echo.PlayTests","Level02OwnModular","^EchoGame.Tests.Level02Tests");
+            else if (command == "doortrial02") EchoDoorModuleBuilder.Apply();
+            else if (command == "builddoors") EchoDoorModuleBuilder.BuildAssets();
+            else if (command == "capturedoors") EchoDoorModuleBuilder.Capture();
+            else if (command == "testdoormodules") Run(TestMode.EditMode,"Echo.Tests","DoorModules","^EchoGame.Tests.DoorModuleTests");
+            else if (command == "testdoors02") Run(TestMode.PlayMode,"Echo.PlayTests","DoorLevel02","^EchoGame.Tests.Level02Tests");
+            else if (command == "floortrial02") EchoFloorModuleBuilder.Apply();
+            else if (command == "capturefloor02") EchoFloorModuleBuilder.Capture();
             else if (command == "capture01") Level01ArtBuilder.Capture();
             else if (command == "testart01") Run(TestMode.PlayMode, "Echo.PlayTests", "Level01ArtPlayMode", "^EchoGame.Tests.Level01");
             else if (command == "playerart01")
@@ -129,6 +148,19 @@ namespace EchoGame.Editor
             public void RunFinished(ITestResultAdaptor result)
             {
                 string name = SessionState.GetString("EchoTestReport", "Tests");
+                if(name=="DoorModules"||name=="DoorLevel02")
+                {
+                    Directory.CreateDirectory(EchoDoorModuleBuilder.Reports);
+                    TestRunnerApi.SaveResultToFile(result,EchoDoorModuleBuilder.Reports+"/"+name+".xml");
+                    Debug.Log($"ECHO door tests {name}: {result.PassCount} passed, {result.FailCount} failed.");return;
+                }
+                if(name=="Level02OwnModular")
+                {
+                    Directory.CreateDirectory(Level02ModularBuilder.Reports);
+                    TestRunnerApi.SaveResultToFile(result,Level02ModularBuilder.Reports+"/Level02OwnModular.xml");
+                    Debug.Log($"ECHO modular Level02: {result.PassCount} passed, {result.FailCount} failed.");
+                    return;
+                }
                 string directory = name=="Level05CheckpointReset" ? "C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-12-Level05-CheckpointReset" : name=="Level05Scanner" ? Level05Builder.ScannerReports : name.StartsWith("Level05") ? Level05Builder.Reports : name.StartsWith("Level01Art") ? Level01ArtBuilder.Reports : name.StartsWith("Level04") ? Level04Builder.Reports : Level03Builder.Reports;
                 if(name.StartsWith("Level05Lever"))directory=Level05LeverUpgrade.Reports;
                 if(name=="Level05Upper")directory=Level05LeverUpgrade.UpperReports;
