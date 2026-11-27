@@ -93,7 +93,7 @@ namespace EchoGame.Tests
                 var hits=Physics.RaycastAll(origin,(door-origin).normalized,Vector3.Distance(origin,door)+.2f,~0,QueryTriggerInteraction.Ignore);
                 System.Array.Sort(hits,(a,b)=>a.distance.CompareTo(b.distance));
                 Assert.That(hits.Length,Is.GreaterThanOrEqualTo(2)); Assert.That(hits[0].collider,Is.SameAs(p.Chambers[i].Window));
-                Assert.That(hits[1].collider.transform,Is.EqualTo(p.Doors[i].Door.Panel));
+                Assert.That(hits[1].collider.transform.IsChildOf(p.Doors[i].Door.Panel),Is.True,"Observation must hit a leaf of the corresponding gate");
                 yield return Level02Tests.CaptureWorld(Object.FindAnyObjectByType<UIManager>(),"L03_Window_"+i);
                 // Window cannot be crossed by a physical character or used to reach a device behind it.
                 var blocker=c.Player.GetComponent<CharacterController>(); blocker.Move(Vector3.right*8); Assert.That(c.Player.Feet.x,Is.LessThan(0));

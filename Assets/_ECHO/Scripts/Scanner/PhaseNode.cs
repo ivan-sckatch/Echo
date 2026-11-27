@@ -13,6 +13,7 @@ namespace EchoGame
         public bool InitiallyHidden = true;
         [Min(.01f)] public float DiscoverySeconds = .5f, ActivationSeconds = 2, HighlightSeconds = 5;
         public Renderer Visual;
+        public PhaseNodePresentation Presentation;
         public Material DiscoveredMaterial, InactiveMaterial, ActiveMaterial;
         public UnityEvent OnActivated = new UnityEvent();
         public event Action<PhaseNode, int> Activated;
@@ -73,11 +74,21 @@ namespace EchoGame
             else if (InitiallyHidden && IsDiscovered) { highlight -= dt; if (highlight <= 0) IsDiscovered = false; }
             IsSignaling = signaling.Count > 0;
             UpdateVisual();
+            if (Presentation) Presentation.Step(this, dt);
         }
         public void ResetNode()
         {
             sources.Clear(); signaling.Clear(); lost.Clear(); highlight = 0;
             IsDiscovered = !InitiallyHidden; IsSignaling = ActivatedThisStep = HasActivated = false; UpdateVisual();
+            if (Presentation) Presentation.ResetPresentation(this);
+        }
+        public float StrongestDiscoveryProgress
+        {
+            get { float value=IsDiscovered?1:0; foreach(var e in sources.Values) value=Mathf.Max(value,Mathf.Clamp01(e.Discovery/DiscoverySeconds)); return value; }
+        }
+        public float StrongestActivationProgress
+        {
+            get { float value=0; foreach(var e in sources.Values) value=Mathf.Max(value,Mathf.Clamp01(e.Activation/ActivationSeconds)); return value; }
         }
         void UpdateVisual()
         {

@@ -33,6 +33,9 @@ namespace EchoGame.Editor
             try { command = File.ReadAllText(Request).Trim(); File.Delete(Request); }
             catch (IOException) { return; } // A request may still be being written by a local tool.
             if (command == "art01") Level01ArtBuilder.Apply();
+            else if (command == "approvedmenus") EchoUIBuilder.ApplyMenuDesign();
+            else if (command == "testapprovedmenus") Run(TestMode.PlayMode, "Echo.PlayTests", "ApprovedMenus", "^EchoGame.Tests.MenuDesignTests");
+            else if (command == "testmenuui") Run(TestMode.PlayMode, "Echo.PlayTests", "MenuUIRegression", "^EchoGame.Tests.UITests");
             else if (command == "capsule01") Level01CapsuleBuilder.Apply();
             else if (command == "lighting01") Level01LightingBuilder.Apply();
             else if (command == "walltrial02") EchoWallModuleBuilder.Apply();
@@ -41,12 +44,32 @@ namespace EchoGame.Editor
             else if (command == "capturewallvariants02") EchoWallModuleBuilder.CaptureVariants();
             else if (command == "exportwalls01") EchoWallSetExporter.Export();
             else if (command == "exportfloors01") EchoWallSetExporter.ExportFloors();
+            else if (command == "wallwear03") EchoWallWearBuilder.Apply();
+            else if (command == "capturewallwear03") EchoWallWearBuilder.Capture();
+            else if (command == "testwallwear03") Run(TestMode.PlayMode,"Echo.PlayTests","WallWear03","^EchoGame.Tests.Level03Tests");
+            else if (command == "validatewallwear") EchoWallWearBuilder.Validate();
             else if (command == "exportassets") EchoWallSetExporter.ExportAll();
             else if (command == "ceilingtrial02") EchoCeilingModuleBuilder.Apply();
             else if (command == "captureceiling02") EchoCeilingModuleBuilder.Capture();
+            else if (command == "repairdoorframes") DoorFrameRepair.Apply();
+            else if (command == "framesbefore") DoorFrameRepair.CaptureBefore();
+            else if (command == "framesafter") DoorFrameRepair.CaptureAfter();
+            else if (command == "testframeresearch") Run(TestMode.PlayMode,"Echo.PlayTests","GlobalDoorFramesResearch","^EchoGame.Tests.Level04Tests.ResearchFreezesClockDisablesDevicesAndPreservesPreparation$");
+            else if (command == "testglobalframes") Run(TestMode.PlayMode,"Echo.PlayTests","GlobalDoorFrames");
+            else if (command == "editglobalframes") Run(TestMode.EditMode,"Echo.Tests","GlobalDoorFramesEdit","^EchoGame.Tests.DoorFrameGeometryTests");
+            else if (command == "modularlevel03") Level03ModularBuilder.Apply();
+            else if (command == "capturemodular03") Level03ModularBuilder.Capture();
+            else if (command == "testmodular03") Run(TestMode.PlayMode,"Echo.PlayTests","Level03OwnModular","^EchoGame.Tests.Level03Tests");
             else if (command == "modularlevel02") Level02ModularBuilder.Apply();
             else if (command == "capturemodular02") Level02ModularBuilder.Capture();
             else if (command == "testmodular02") Run(TestMode.PlayMode,"Echo.PlayTests","Level02OwnModular","^EchoGame.Tests.Level02Tests");
+            else if (command == "phasetrial02") EchoPhaseNodeBuilder.Apply();
+            else if (command == "buildphases") { EchoPhaseNodeBuilder.BuildAssets(); UnityEditor.SceneManagement.EditorSceneManager.OpenScene(Level02Builder.ScenePath); }
+            else if (command == "capturephase02") EchoPhaseNodeBuilder.Capture();
+            else if (command == "testphasemodules") Run(TestMode.EditMode,"Echo.Tests","PhaseModules","^EchoGame.Tests.PhaseNodePresentationTests");
+            else if (command == "testphase02") Run(TestMode.PlayMode,"Echo.PlayTests","PhaseLevel02","^EchoGame.Tests.Level02Tests");
+            else if (command == "swapdoors02") EchoDoorPlacement.Swap();
+            else if (command == "testswapdoors02") Run(TestMode.PlayMode,"Echo.PlayTests","DoorSwapLevel02","^EchoGame.Tests.Level02Tests");
             else if (command == "doortrial02") EchoDoorModuleBuilder.Apply();
             else if (command == "builddoors") EchoDoorModuleBuilder.BuildAssets();
             else if (command == "capturedoors") EchoDoorModuleBuilder.Capture();
@@ -148,6 +171,32 @@ namespace EchoGame.Editor
             public void RunFinished(ITestResultAdaptor result)
             {
                 string name = SessionState.GetString("EchoTestReport", "Tests");
+                if(name=="WallWear03")
+                {
+                    Directory.CreateDirectory(EchoWallWearBuilder.Reports);
+                    TestRunnerApi.SaveResultToFile(result,EchoWallWearBuilder.Reports+"/"+name+".xml");return;
+                }
+                if(name.StartsWith("GlobalDoorFrames"))
+                {
+                    Directory.CreateDirectory(DoorFrameRepair.Reports);
+                    TestRunnerApi.SaveResultToFile(result,DoorFrameRepair.Reports+"/"+name+".xml");return;
+                }
+                if(name=="Level03OwnModular")
+                {
+                    Directory.CreateDirectory(Level03ModularBuilder.Reports);
+                    TestRunnerApi.SaveResultToFile(result,Level03ModularBuilder.Reports+"/"+name+".xml");return;
+                }
+                if(name=="DoorSwapLevel02")
+                {
+                    Directory.CreateDirectory(EchoDoorPlacement.Reports);
+                    TestRunnerApi.SaveResultToFile(result,EchoDoorPlacement.Reports+"/"+name+".xml");return;
+                }
+                if(name=="PhaseModules"||name=="PhaseLevel02")
+                {
+                    Directory.CreateDirectory(EchoPhaseNodeBuilder.Reports);
+                    TestRunnerApi.SaveResultToFile(result,EchoPhaseNodeBuilder.Reports+"/"+name+".xml");
+                    Debug.Log($"ECHO phase tests {name}: {result.PassCount} passed, {result.FailCount} failed.");return;
+                }
                 if(name=="DoorModules"||name=="DoorLevel02")
                 {
                     Directory.CreateDirectory(EchoDoorModuleBuilder.Reports);
@@ -166,6 +215,7 @@ namespace EchoGame.Editor
                 if(name=="Level05Upper")directory=Level05LeverUpgrade.UpperReports;
                 if(name=="Level05CheckpointArrival")directory="C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-13-Level05-CheckpointArrival";
                 if(name=="ResearchRecord")directory="C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-12-ResearchRecord";
+                if(name=="ApprovedMenus"||name=="MenuUIRegression")directory="C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-27-MenuImplementation";
                 Directory.CreateDirectory(directory);
                 string path = directory + "/" + name + ".xml";
                 TestRunnerApi.SaveResultToFile(result, path);

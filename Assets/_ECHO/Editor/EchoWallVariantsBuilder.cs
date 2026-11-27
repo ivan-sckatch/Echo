@@ -11,28 +11,21 @@ namespace EchoGame.Editor
     public static partial class EchoWallModuleBuilder
     {
         public const string VariantReports="C:/Users/user/Desktop/4-ый курс/Диплом/.work-gdd/validation/2026-11-21-EchoWallVariants";
-        static Material WornPaint(string name,int seed,Color color,float wear)
+        // Wear belongs to independent decal projectors, never to a repeating wall material.
+        static Material CleanPaint(string name, Color color)
         {
-            Directory.CreateDirectory(Art+"/Textures");
-            const int n=512; var pixels=new Color[n*n];var random=new System.Random(seed);
-            for(int y=0;y<n;y++)for(int x=0;x<n;x++)
-            {
-                float dirt=Mathf.Pow(1-y/(float)n,5)*Mathf.PerlinNoise(x*.025f+seed,y*.025f)*wear*.06f;
-                float value=.96f+((float)random.NextDouble()-.5f)*.025f-dirt;
-                pixels[y*n+x]=new Color(value,value,value,1);
-            }
-            // Sparse edge scuffs, not uniform full-surface noise. Each variant has a stable seed.
-            for(int i=0;i<45*wear;i++)
-            {
-                int x=random.Next(12,n-12),y=random.Next(12,n-12);
-                if(i%3!=0)x=random.NextDouble()<.5?random.Next(5,40):random.Next(n-40,n-5);
-                int length=random.Next(3,19);float v=i%4==0?.62f:1f;
-                for(int k=0;k<length;k++){int xx=x+k/4,yy=y+k;if(xx>=n||yy>=n)break;pixels[yy*n+xx]=new Color(v,v,v,1);}
-            }
-            var tex=new Texture2D(n,n,TextureFormat.RGBA32,false);tex.SetPixels(pixels);tex.Apply();string path=Art+"/Textures/"+name+".png";
-            File.WriteAllBytes(path,tex.EncodeToPNG());Object.DestroyImmediate(tex);AssetDatabase.ImportAsset(path);
-            var importer=(TextureImporter)AssetImporter.GetAtPath(path);importer.wrapMode=TextureWrapMode.Clamp;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.SaveAndReimport();
-            var material=Mat(name,color,.06f,.34f-wear*.08f);material.SetTexture("_BaseMap",AssetDatabase.LoadAssetAtPath<Texture2D>(path));EditorUtility.SetDirty(material);return material;
+            var material=Mat(name,color,.06f,.28f);
+            foreach(string property in new[]{"_BaseMap","_MainTex","_DetailAlbedoMap","_DetailNormalMap"})
+                if(material.HasProperty(property))material.SetTexture(property,null);
+            material.DisableKeyword("_DETAIL_MULX2");material.DisableKeyword("_DETAIL_SCALED");
+            EditorUtility.SetDirty(material);return material;
+        }
+        public static void CleanBaseMaterials()
+        {
+            CleanPaint("Composite clean",new Color(.57f,.58f,.55f));
+            CleanPaint("Composite worn",new Color(.57f,.56f,.53f));
+            CleanPaint("Service paint",new Color(.54f,.56f,.55f));
+            AssetDatabase.SaveAssets();
         }
         [MenuItem("Tools/ECHO/Art/Try three own wall variants in Level 02")]
         public static void ApplyVariants()
@@ -50,7 +43,7 @@ namespace EchoGame.Editor
                 mesh.uv=vertices.Select((v,i)=>Mathf.Abs(normals[i].z)>.5f?new Vector2((v.x-bounds.min.x)/bounds.size.x,(v.y-bounds.min.y)/bounds.size.y):new Vector2((v.z-bounds.min.z)/bounds.size.z,(v.y-bounds.min.y)/bounds.size.y)).ToArray();EditorUtility.SetDirty(mesh);
             }
             metal=AssetDatabase.LoadAssetAtPath<Material>(Art+"/Materials/Graphite.mat");recess=AssetDatabase.LoadAssetAtPath<Material>(Art+"/Materials/Recess.mat");marker=AssetDatabase.LoadAssetAtPath<Material>(Art+"/Materials/Turquoise marker.mat");
-            var paints=new[]{WornPaint("Composite clean",11,new Color(.57f,.58f,.55f),.35f),WornPaint("Composite worn",37,new Color(.57f,.56f,.53f),1f),WornPaint("Service paint",83,new Color(.54f,.56f,.55f),1.5f)};
+            var paints=new[]{CleanPaint("Composite clean",new Color(.57f,.58f,.55f)),CleanPaint("Composite worn",new Color(.57f,.56f,.53f)),CleanPaint("Service paint",new Color(.54f,.56f,.55f))};
             var hatchPaint=Mat("Hatch steel",new Color(.23f,.28f,.29f),.4f,.28f);
             var trial=new GameObject("ECHO Wall variants trial");trial.transform.SetParent(GameObject.Find("_Environment").transform,false);
             string[] kinds={"Plain","Light","Service"};
@@ -92,7 +85,7 @@ namespace EchoGame.Editor
             }
             if(!colliders.SequenceEqual(Object.FindObjectsByType<Collider>().Select(c=>c.GetEntityId()).OrderBy(i=>i)))throw new InvalidOperationException("Wall variants changed colliders.");
             EditorSceneManager.MarkSceneDirty(scene);EditorSceneManager.SaveScene(scene);AssetDatabase.SaveAssets();
-            File.WriteAllText(VariantReports+"/verified.txt",DateTime.UtcNow.ToString("O")+"\nPlain, Light, Service prefabs; three original deterministic 512px wear textures. Right wall x8.70, z2.4/4.9/7.4.\nGameplay colliders preserved: "+colliders.Length+"; decorative colliders: 0. Previous single trial replaced.");
+            File.WriteAllText(VariantReports+"/verified.txt",DateTime.UtcNow.ToString("O")+"\nPlain, Light, Service prefabs; clean base materials; wear is supplied separately as WallWear01 decals. Right wall x8.70, z2.4/4.9/7.4.\nGameplay colliders preserved: "+colliders.Length+"; decorative colliders: 0. Previous single trial replaced.");
             EditorSceneManager.OpenScene(Level02Builder.ScenePath);EditorApplication.QueuePlayerLoopUpdate();
         }
         public static void CaptureVariants()

@@ -89,7 +89,7 @@ namespace EchoGame.Editor
                     Part(door.Panel,"Identification "+side,new Vector3(.98f,-1.19f,side*.202f),new Vector3(.08f,.08f,.012f),mark,.002f);
                 }
             }
-            door.ResetMechanism();PrefabUtility.SaveAsPrefabAsset(root,Art+"/Prefabs/"+root.name+".prefab");Object.DestroyImmediate(root);
+            DoorFrameGeometry.FitModular(t);door.ResetMechanism();PrefabUtility.SaveAsPrefabAsset(root,Art+"/Prefabs/"+root.name+".prefab");Object.DestroyImmediate(root);
         }
         [MenuItem("Tools/ECHO/Art/Build door variants 01 03 05")]
         public static void BuildAssets()
@@ -102,7 +102,7 @@ namespace EchoGame.Editor
             foreach(var m in new[]{closed,open}){m.EnableKeyword("_EMISSION");m.SetColor("_EmissionColor",m.GetColor("_BaseColor")*2);m.globalIlluminationFlags=MaterialGlobalIlluminationFlags.BakedEmissive;EditorUtility.SetDirty(m);}
             foreach(string kind in new[]{"01_Basic","03_Window","05_Diagonal"})Build(kind);AssetDatabase.SaveAssets();
         }
-        static void Mount(DoorController target,string kind)
+        internal static void Mount(DoorController target,string kind)
         {
             target.Panel.gameObject.SetActive(false);target.Indicator.gameObject.SetActive(false);
             var instance=(GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(Art+"/Prefabs/ECHO_Door_"+kind+"_300x340.prefab"));instance.transform.SetParent(target.transform,false);
@@ -118,8 +118,8 @@ namespace EchoGame.Editor
             Directory.CreateDirectory(Reports);File.Copy(Level02Builder.ScenePath,Reports+"/Level_02-before-"+DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff")+".unity");
             var scene=EditorSceneManager.OpenScene(Level02Builder.ScenePath);BuildAssets();var puzzle=Object.FindAnyObjectByType<DualPhasePuzzleController>();
             if(puzzle.FirstDoor.Panel.name=="Moving carrier")throw new InvalidOperationException("Door trial already applied; restore the before-door scene before applying again.");
-            Mount(puzzle.FirstDoor,"03_Window");Mount(puzzle.FinalDoor,"05_Diagonal");EditorSceneManager.MarkSceneDirty(scene);EditorSceneManager.SaveScene(scene);AssetDatabase.SaveAssets();
-            File.WriteAllText(Reports+"/applied.txt",DateTime.UtcNow.ToString("O")+"\nDoor 1:03 Window (lift); Door 2:05 Diagonal (opposed convex leaves); 01 Basic prefab separate. Original puzzle/controller references preserved. Original panel/status objects inactive, new door physics in place.\nSplit travel2.9m along normalized(-.493,.870,0). No accepted package export yet.");
+            Mount(puzzle.FirstDoor,"05_Diagonal");Mount(puzzle.FinalDoor,"03_Window");EditorSceneManager.MarkSceneDirty(scene);EditorSceneManager.SaveScene(scene);AssetDatabase.SaveAssets();
+            File.WriteAllText(Reports+"/applied.txt",DateTime.UtcNow.ToString("O")+"\nDoor 1:05 Diagonal (opposed convex leaves); Door 2:03 Window (lift); 01 Basic prefab separate. Original puzzle/controller references preserved. Original panel/status objects inactive, new door physics in place.\nSplit travel2.9m along normalized(-.493,.870,0). No accepted package export yet.");
             EditorSceneManager.OpenScene(Level02Builder.ScenePath);EditorApplication.QueuePlayerLoopUpdate();
         }
         public static void Capture()

@@ -30,7 +30,7 @@ namespace EchoGame.UI
             Master.SetValueWithoutNotify(data.Master); Sensitivity.SetValueWithoutNotify(data.Sensitivity); Scale.SetValueWithoutNotify(data.Scale);
             Fullscreen.SetIsOnWithoutNotify(data.Fullscreen); VSync.SetIsOnWithoutNotify(data.VSync); Animations.SetIsOnWithoutNotify(data.Animations);
             int index = resolutions.IndexOf(new Vector2Int(data.Width, data.Height)); Resolution.SetValueWithoutNotify(Mathf.Max(0, index));
-            Feedback.text = Application.isEditor ? "В Editor параметры экрана сохраняются для запуска игры." : "Изменения применяются кнопкой «Применить».";
+            Feedback.text = "Изменения применяются кнопкой «Применить».";
             UpdateLabels();
         }
         void UpdateLabels() { MasterValue.text = $"{Master.value * 100:0}%"; SensitivityValue.text = Sensitivity.value.ToString("0.00"); ScaleValue.text = $"{Scale.value * 100:0}%"; }

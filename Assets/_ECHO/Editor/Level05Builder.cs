@@ -100,6 +100,7 @@ namespace EchoGame.Editor
             foreach(var m in mechanisms)m.ResetMechanism();
             ResearchInspectionBuilder.Clean(scene);
             Level05LeverUpgrade.Install(level);
+            DoorFrameGeometry.FitStructuralReveals(scene);
             EditorSceneManager.SaveScene(scene,ScenePath);
             var scenes=new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);scenes.RemoveAll(s=>s.path==ScenePath);scenes.Add(new EditorBuildSettingsScene(ScenePath,true));EditorBuildSettings.scenes=scenes.ToArray();AssetDatabase.SaveAssets();
             Directory.CreateDirectory(Reports);Debug.Log("ECHO: Level 05 saved: three tiers, two echoes, two geometry checkpoints.");

@@ -105,6 +105,7 @@ namespace EchoGame.Editor
             cycles.Game = game; cycles.Player = player; cycles.Spawn = spawn; cycles.Recorder = recorder;
             cycles.Echoes = echoes; cycles.Puzzle = puzzle; cycles.Exit = exit; cycles.UI = ui;
             cycles.UI = EchoUIBuilder.Install(game, cycles);
+            DoorFrameGeometry.FitStructuralReveals(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             // Preserve other build scenes, replacing only this generated entry.
             var buildScenes = new System.Collections.Generic.List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);

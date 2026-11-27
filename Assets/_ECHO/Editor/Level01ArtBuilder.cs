@@ -152,9 +152,9 @@ namespace EchoGame.Editor
                 Box(t, "Cover", new Vector3(0, 0, -.1f), new Vector3(.9f, .07f, .06f), "WornMetal"); });
             Module("DoorFrame", t => {
                 foreach (float x in new[] { -1.69f, 1.69f }) {
-                    Box(t, "Jamb", new Vector3(x, 1.8f, 0), new Vector3(.32f, 3.6f, .8f), "WornMetal");
-                    Box(t, "Guide rail", new Vector3(x, 1.8f, -.43f), new Vector3(.065f, 3.4f, .08f), "Composite"); }
-                Box(t, "Header", new Vector3(0, 3.7f, 0), new Vector3(3.7f, .5f, .85f), "Graphite"); });
+                    Box(t, "Jamb", new Vector3(Mathf.Sign(x)*1.665f, 1.725f, 0), new Vector3(.37f, 3.45f, .8f), "WornMetal");
+                    Box(t, "Guide rail", new Vector3(Mathf.Sign(x)*1.665f, 1.725f, -.43f), new Vector3(.065f, 3.30f, .08f), "Composite"); }
+                Box(t, "Header", new Vector3(0, 3.7f, 0), new Vector3(3.7f, .5f, .85f), "Graphite"); DoorFrameGeometry.FitLegacy(t); });
             Module("PressurePlateVisual", t => {
                 Box(t, "Foundation", new Vector3(0, .04f, 0), new Vector3(2.5f, .08f, 2.5f), "Graphite");
                 var deck = Node("Deck", t); deck.transform.localPosition = Vector3.up * .145f;

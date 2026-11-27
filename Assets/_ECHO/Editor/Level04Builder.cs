@@ -107,6 +107,7 @@ namespace EchoGame.Editor
             RenderSettings.ambientMode=AmbientMode.Flat;RenderSettings.ambientLight=new Color(.6f,.64f,.69f);
             foreach(float z in new[]{3f,10,18,23,29,36,43}) { var light=Node("Atrium light",env).AddComponent<Light>();light.type=LightType.Point;light.range=12;light.intensity=2.5f;light.transform.position=new Vector3(0,z<12?2.7f:7,z); }
             ResearchInspectionBuilder.Clean(scene);
+            DoorFrameGeometry.FitStructuralReveals(scene);
             EditorSceneManager.SaveScene(scene,Path);var scenes=new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);scenes.RemoveAll(s=>s.path==Path);scenes.Add(new EditorBuildSettingsScene(Path,true));EditorBuildSettings.scenes=scenes.ToArray();AssetDatabase.SaveAssets();
             System.IO.Directory.CreateDirectory(Reports+"/Captures");Debug.Log("ECHO: Level04 saved. Three cameras, four fragments, two nodes, required jump.");
         }

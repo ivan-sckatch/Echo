@@ -547,6 +547,12 @@ MonoBehaviour:
   Indicator: {fileID: 319000405}
   ClosedMaterial: {fileID: 2100000, guid: 931407f2b06077144a83763e86ca9919, type: 2}
   OpenMaterial: {fileID: 2100000, guid: 4d6bc958e9a388442af0b7cbe6544d7b, type: 2}
+  SplitDiagonally: 0
+  UpperLeaf: {fileID: 0}
+  LowerLeaf: {fileID: 0}
+  SplitDirection: {x: -0.493, y: 0.87, z: 0}
+  SplitTravel: 2.9
+  AdditionalIndicators: []
   Travel: 3.8
   OpenSeconds: 0.35
   CloseSeconds: 0.18
@@ -947,6 +953,7 @@ MonoBehaviour:
   ActivationSeconds: 1
   HighlightSeconds: 5
   Visual: {fileID: 112282186}
+  Presentation: {fileID: 0}
   DiscoveredMaterial: {fileID: 2100000, guid: 0452da64735cd534a86e187bb596c7a2, type: 2}
   InactiveMaterial: {fileID: 2100000, guid: 51be27b07c91d9d44800e4b26081dd51, type: 2}
   ActiveMaterial: {fileID: 2100000, guid: 4d6bc958e9a388442af0b7cbe6544d7b, type: 2}
@@ -12632,7 +12639,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1440801377}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 4300000, guid: 8f46461e3bd68144b91dc2ee52aa211d, type: 2}
 --- !u!1 &1451552116
 GameObject:
   m_ObjectHideFlags: 0

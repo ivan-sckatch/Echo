@@ -8,6 +8,7 @@ namespace EchoGame.UI
         public MonoBehaviour DataProvider;
         public bool IsMainMenu;
         public CanvasScaler Scaler;
+        public UIMenuBackdrop Backdrop;
         public HUDController HUD;
         public TimelineUI Timeline;
         public MainMenuUI Main;
@@ -66,6 +67,7 @@ namespace EchoGame.UI
         {
             State = state;
             hasState = true;
+            if (Backdrop) Backdrop.Show(state == UIState.Paused || state == UIState.Settings);
             HUD.Show(state == UIState.Gameplay);
             Timeline.Motion.Show(state == UIState.Timeline);
             Main.Motion.Show(state == UIState.MainMenu);
@@ -83,6 +85,14 @@ namespace EchoGame.UI
                 if (root != null) foreach (var selectable in root.GetComponentsInChildren<Selectable>())
                     if (selectable.IsInteractable()) { EventSystem.current.SetSelectedGameObject(selectable.gameObject); break; }
             }
+            if (root) StartCoroutine(SelectWhenReady(root, state));
+        }
+        System.Collections.IEnumerator SelectWhenReady(Transform root, UIState expected)
+        {
+            yield return null;
+            if (State != expected || !root || !EventSystem.current || EventSystem.current.currentSelectedGameObject) yield break;
+            foreach (var control in root.GetComponentsInChildren<Selectable>())
+                if (control.IsInteractable()) { control.Select(); break; }
         }
         public void OpenSettings() { returnState = State; Settings.LoadValues(); SetState(UIState.Settings); }
         public void OpenLevels() => SetState(UIState.LevelSelect);

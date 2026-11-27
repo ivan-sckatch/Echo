@@ -88,7 +88,7 @@ namespace EchoGame.Tests
             yield return Beam(false);c.Game.SetState(GameState.Timeline);c.Game.Resume();Assert.That(c.Game.State,Is.EqualTo(GameState.Research));
             c.Game.TogglePause();c.Game.Resume();Assert.That(c.Game.State,Is.EqualTo(GameState.Research));
             Place(c.Exit.transform.position);yield return Wait(.1f);Assert.That(c.Game.State,Is.EqualTo(GameState.Research));
-            Keys(Key.Enter);yield return null;yield return null;Keys();
+            Keys(Key.R);yield return null;yield return null;Keys();
             Assert.That(c.Game.State,Is.EqualTo(GameState.Playing));Assert.That(c.Echoes.Echoes[0].Recording,Is.SameAs(saved));Assert.That(p.FirstDoor.Command,Is.False);Assert.That(p.ExitDoor.Command,Is.False);
             Keys(Key.Backspace);yield return null;yield return null;Keys();
             Assert.That(c.Game.State,Is.EqualTo(GameState.Research));Assert.That(c.Echoes.Echoes[0].IsActive,Is.False);

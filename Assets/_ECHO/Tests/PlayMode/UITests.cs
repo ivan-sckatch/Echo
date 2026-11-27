@@ -31,13 +31,27 @@ namespace EchoGame.Tests
     {
         UIManager ui;
         TimeCycleManager cycles;
+        InputSettings.BackgroundBehavior previousBackground;
+        InputSettings.EditorInputBehaviorInPlayMode previousEditorInput;
         [UnitySetUp] public IEnumerator Load()
         {
+            // Synthetic keyboards must reach player Update in a hidden batch Game View too.
+            previousBackground = InputSystem.settings.backgroundBehavior;
+            previousEditorInput = InputSystem.settings.editorInputBehaviorInPlayMode;
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
             Time.timeScale = 1; yield return SceneManager.LoadSceneAsync("Level_01"); yield return null;
             ui = Object.FindAnyObjectByType<UIManager>(); cycles = Object.FindAnyObjectByType<TimeCycleManager>();
             Assert.That(ui, Is.Not.Null); Assert.That(ui.Provider, Is.Not.Null);
         }
-        [UnityTearDown] public IEnumerator Cleanup() { if (cycles) cycles.Game.SetState(GameState.Playing); Time.timeScale = 1; yield return null; }
+        [UnityTearDown] public IEnumerator Cleanup()
+        {
+            if (cycles) cycles.Game.SetState(GameState.Playing);
+            Time.timeScale = 1;
+            InputSystem.settings.backgroundBehavior = previousBackground;
+            InputSystem.settings.editorInputBehaviorInPlayMode = previousEditorInput;
+            yield return null;
+        }
         [UnityTest] public IEnumerator CompactHUDCountsSavedEchoesWithoutStatusRows()
         {
             cycles.AutoStartRecording = false; cycles.Restart(true);

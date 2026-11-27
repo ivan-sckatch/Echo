@@ -13,7 +13,7 @@ using UnityEngine.TextCore.LowLevel;
 using UnityEngine.UI;
 namespace EchoGame.Editor
 {
-    public static class EchoUIBuilder
+    public static partial class EchoUIBuilder
     {
         public const string MenuPath = "Assets/_ECHO/Scenes/MainMenu.unity";
         const string PrefabPath = "Assets/_ECHO/UI/Prefabs/EchoUI.prefab";
@@ -23,6 +23,24 @@ namespace EchoGame.Editor
         static Image segmentPrefab;
         static Sprite whiteSprite;
         public static void RefreshPrefabOnly() { Prepare(); BuildPrefab(); AssetDatabase.SaveAssets(); }
+        [MenuItem("Tools/ECHO/Apply approved menu design")]
+        public static void ApplyMenuDesign()
+        {
+            if (EditorApplication.isPlaying) throw new System.InvalidOperationException("Stop Play Mode first.");
+            var previous = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            var loadedMenu = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(MenuPath);
+            if (loadedMenu.IsValid() && loadedMenu.isLoaded && loadedMenu.isDirty)
+                throw new System.InvalidOperationException("Save the open MainMenu scene before rebuilding it.");
+            if (loadedMenu.IsValid() && loadedMenu.isLoaded) EditorSceneManager.CloseScene(loadedMenu, true);
+            RefreshPrefabOnly(); EchoMenuSceneBuilder.Build(true); AssetDatabase.SaveAssets();
+            var built = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (previous.IsValid() && previous.isLoaded)
+            {
+                UnityEngine.SceneManagement.SceneManager.SetActiveScene(previous);
+                EditorSceneManager.CloseScene(built, true);
+            }
+            Debug.Log("ECHO: approved main, pause and settings menus applied.");
+        }
         [MenuItem("Tools/ECHO/Apply Compact UI")]
         public static void ApplyCompactUI()
         {
@@ -48,12 +66,7 @@ namespace EchoGame.Editor
             if (EditorApplication.isPlaying) { Debug.LogWarning("ECHO: остановите Play Mode перед сборкой UI."); return; }
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             Prepare(); BuildPrefab();
-            var menu = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            var menuCamera = new GameObject("Menu Camera", typeof(Camera)).GetComponent<Camera>();
-            menuCamera.clearFlags = CameraClearFlags.SolidColor; menuCamera.backgroundColor = UITheme.Background; menuCamera.cullingMask = 0;
-            var shell = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath));
-            shell.GetComponent<UIManager>().IsMainMenu = true; EventSystemSetup();
-            EditorSceneManager.SaveScene(menu, MenuPath);
+            EchoMenuSceneBuilder.Build();
             var level = EditorSceneManager.OpenScene(Level01Builder.ScenePath);
             var game = Object.FindAnyObjectByType<GameManager>();
             Install(game, game.Cycles);
@@ -203,10 +216,12 @@ namespace EchoGame.Editor
         }
         static void EventSystemSetup()
         {
-            if (Object.FindAnyObjectByType<EventSystem>()) return;
+            foreach (var system in Object.FindObjectsByType<EventSystem>(FindObjectsSortMode.None))
+                if (system.gameObject.scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene()) return;
             var go = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
             go.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
         }
+        public static void EnsureEventSystem() => EventSystemSetup();
         static void BuildPrefab()
         {
             MakeTemplates();
@@ -216,6 +231,13 @@ namespace EchoGame.Editor
             scaler.referenceResolution = new Vector2(1920, 1080); scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight; scaler.matchWidthOrHeight = 1;
             root.gameObject.AddComponent<GraphicRaycaster>();
             var ui = root.gameObject.AddComponent<UIManager>(); ui.Scaler = scaler;
+            var backdrop = Rect("Menu blurred world", root).gameObject.AddComponent<RawImage>();
+            Stretch(backdrop.rectTransform); backdrop.raycastTarget = false; backdrop.enabled = false;
+            ui.Backdrop = backdrop.gameObject.AddComponent<UIMenuBackdrop>();
+            const string blurPath = "Assets/_ECHO/UI/MenuBlur.mat";
+            var blur = AssetDatabase.LoadAssetAtPath<Material>(blurPath);
+            if (!blur) { blur = new Material(Shader.Find("Hidden/ECHO/MenuBlur")); AssetDatabase.CreateAsset(blur, blurPath); }
+            ui.Backdrop.Blur = blur;
             ui.HUD = BuildHUD(root); ui.Timeline = BuildTimeline(root);
             ui.Main = BuildMain(root); ui.Pause = BuildPause(root); ui.Levels = BuildLevels(root); ui.Complete = BuildComplete(root); ui.Settings = BuildSettings(root);
             PrefabUtility.SaveAsPrefabAsset(root.gameObject, PrefabPath); Object.DestroyImmediate(root.gameObject);
@@ -328,32 +350,6 @@ namespace EchoGame.Editor
             var panel = Panel("Panel", motion.transform, Vector2.one * .5f, Vector2.zero, new Vector2(760, height));
             Label(panel, title, 42, 44, 28, 672, 68); return panel;
         }
-        static MainMenuUI BuildMain(Transform root)
-        {
-            var motion = Group("Main menu", root, true); var menu = motion.gameObject.AddComponent<MainMenuUI>(); menu.Motion = motion;
-            // Inexpensive technological backdrop, built from UI geometry.
-            for (int i = 0; i < 6; i++) { var line = Image("Time trace " + i, motion.transform, new Color(.34f, .86f, .9f, .05f + i * .01f)); Place(line.rectTransform, new Vector2(1, .5f), new Vector2(-120 - i * 48, (i - 3) * 90), new Vector2(620 + i * 50, 2)); line.transform.localRotation = Quaternion.Euler(0, 0, -24); }
-            var panel = Panel("Navigation", motion.transform, new Vector2(0, .5f), new Vector2(100, 0), new Vector2(670, 740));
-            Label(panel, "E C H O", 88, 48, 28, 590, 120, UITheme.Cyan);
-            Label(panel, "ВАШЕ ПРОШЛОЕ ОТКРЫВАЕТ ПУТЬ", 24, 48, 152, 590, 42, UITheme.Muted);
-            menu.Continue = Button(panel, "Продолжить", 48, 234, 574);
-            menu.NewGame = Button(panel, "Новая игра", 48, 312, 574);
-            menu.LevelSelect = Button(panel, "Выбор уровня", 48, 390, 574);
-            menu.Settings = Button(panel, "Настройки", 48, 468, 574);
-            menu.Quit = Button(panel, "Выход", 48, 546, 574);
-            Label(panel, "Продолжение недоступно: сохранений пока нет.\nВ Editor выход из приложения отключён.", 23, 48, 636, 574, 78, UITheme.Muted);
-            return menu;
-        }
-        static PauseMenuUI BuildPause(Transform root)
-        {
-            var motion = Group("Pause", root, true); var menu = motion.gameObject.AddComponent<PauseMenuUI>(); menu.Motion = motion;
-            var panel = MenuPanel(motion, "ПАУЗА", 750);
-            Label(panel, "Время остановлено. Эхо ждут вас.", 27, 44, 106, 670, 54, UITheme.Muted);
-            menu.Resume = Button(panel, "Продолжить", 44, 194, 672);
-            menu.Restart = Button(panel, "Перезапустить цикл", 44, 282, 672);
-            menu.Settings = Button(panel, "Настройки", 44, 370, 672);
-            menu.MainMenu = Button(panel, "Главное меню", 44, 458, 672); Label(panel, "WASD — движение · Space — прыжок\nR — запись · T — повтор · Tab — шкала\nF — действие · ПКМ — сканер · Esc — пауза", 22, 44, 560, 672, 140, UITheme.Muted); return menu;
-        }
         static LevelSelectUI BuildLevels(Transform root)
         {
             var motion = Group("Level select", root, true); var menu = motion.gameObject.AddComponent<LevelSelectUI>(); menu.Motion = motion;
@@ -401,30 +397,6 @@ namespace EchoGame.Editor
             scroll.viewport = viewport; scroll.content = content; scroll.scrollSensitivity = 35;
             dropdown.template = template.rectTransform; template.gameObject.SetActive(false); return dropdown;
         }
-        static SettingsMenuUI BuildSettings(Transform root)
-        {
-            var motion = Group("Settings", root, true); var menu = motion.gameObject.AddComponent<SettingsMenuUI>(); menu.Motion = motion;
-            var panel = Panel("Settings panel", motion.transform, Vector2.one * .5f, Vector2.zero, new Vector2(1240, 780));
-            Label(panel, "НАСТРОЙКИ", 42, 40, 22, 1160, 66);
-            Label(panel, "ЗВУК", 27, 40, 112, 500, 40, UITheme.Cyan);
-            Label(panel, "Общая громкость", 26, 40, 170, 400, 40);
-            menu.Master = Slider(panel, 40, 232, 0, 1); menu.MasterValue = Label(panel, "100%", 25, 400, 214, 130, 50);
-            Label(panel, "Музыка и эффекты отсутствуют в прототипе.\nРаздельная громкость пока недоступна.", 23, 40, 280, 510, 90, UITheme.Muted);
-            Label(panel, "УПРАВЛЕНИЕ", 27, 40, 404, 500, 40, UITheme.Cyan);
-            Label(panel, "Чувствительность мыши", 26, 40, 454, 500, 42);
-            menu.Sensitivity = Slider(panel, 40, 516, .02f, .4f); menu.SensitivityValue = Label(panel, "0.10", 25, 400, 498, 130, 50);
-            Label(panel, "WASD — движение  ·  Space — прыжок\nF — действие  ·  R — запись  ·  T — повтор\nTab — шкала  ·  Esc — пауза", 23, 40, 564, 550, 108, UITheme.Muted);
-            Label(panel, "ВИДЕО", 27, 660, 112, 500, 40, UITheme.Cyan);
-            menu.Fullscreen = Toggle(panel, "Полноэкранный режим", 660, 162);
-            menu.VSync = Toggle(panel, "Вертикальная синхронизация", 660, 214);
-            menu.Resolution = Dropdown(panel, 660, 280);
-            Label(panel, "ИНТЕРФЕЙС", 27, 660, 404, 500, 40, UITheme.Cyan);
-            Label(panel, "Масштаб UI", 26, 660, 454, 500, 42);
-            menu.Scale = Slider(panel, 660, 516, .75f, 1.25f); menu.ScaleValue = Label(panel, "100%", 25, 1020, 498, 140, 50);
-            menu.Animations = Toggle(panel, "Анимации интерфейса", 660, 572);
-            menu.Feedback = Label(panel, "", 22, 660, 626, 540, 58, UITheme.Muted);
-            menu.Back = Button(panel, "Назад", 40, 700, 520, 58); menu.Apply = Button(panel, "Применить", 660, 700, 540, 58);
-            return menu;
-        }
+
     }
 }

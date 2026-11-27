@@ -83,6 +83,7 @@ namespace EchoGame.Editor
             cycles.Recorder = playerObject.AddComponent<EchoRecorder>(); cycles.Exit = exit; cycles.Scanning = world; cycles.PhasePuzzle = puzzle;
             cycles.LevelName = "02 · Скрытый сигнал"; cycles.Duration = 30; cycles.AutoStartRecording = true;
             cycles.UI = EchoUIBuilder.Install(game, cycles);
+            DoorFrameGeometry.FitStructuralReveals(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes); scenes.RemoveAll(s => s.path == ScenePath); scenes.Add(new EditorBuildSettingsScene(ScenePath, true));
             EditorBuildSettings.scenes = scenes.ToArray(); AssetDatabase.SaveAssets();
